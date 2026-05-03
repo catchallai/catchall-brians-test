@@ -2,36 +2,21 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Plus, FolderOpen, FileText, Users, ArrowRight, Zap } from 'lucide-react';
-import RecentPagesWidget from '@/components/wiki/RecentPagesWidget';
-import QuickNavigationDialog from '@/components/wiki/QuickNavigationDialog';
-import FullTextSearch from '@/components/wiki/FullTextSearch';
-import EmptyState from '@/components/ui/EmptyState';
-import SpaceModal from '@/components/modals/SpaceModal';
-import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
+import { Plus, FolderOpen, FileText, Users, ArrowRight, Zap, Search, ChevronRight, MoreHorizontal, Lock } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SpaceModal from '@/components/modals/SpaceModal';
 
 export default function Spaces() {
-  const [searchTerm, _setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingSpace, setEditingSpace] = useState(null);
-  const [showQuickNav, setShowQuickNav] = useState(false);
+  const [selectedSpace, setSelectedSpace] = useState(null);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Cmd+K shortcut
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowQuickNav(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const { data: spaces = [], isLoading } = useQuery({
+  const { data: spaces = [] } = useQuery({
     queryKey: ['spaces'],
     queryFn: () => base44.entities.Space.list('-created_date'),
   });
@@ -43,10 +28,11 @@ export default function Spaces() {
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Space.create(data),
-    onSuccess: () => {
+    onSuccess: (newSpace) => {
       queryClient.invalidateQueries({ queryKey: ['spaces'] });
       setShowModal(false);
       setEditingSpace(null);
+      setSelectedSpace(newSpace.id);
     },
   });
 
@@ -67,6 +53,14 @@ export default function Spaces() {
     }
   };
 
+  const getSpacePageCount = (spaceId) => {
+    return pages.filter((p) => p.space_id === spaceId).length;
+  };
+
+  const filteredPages = selectedSpace
+    ? pages.filter((p) => p.space_id === selectedSpace)
+    : [];
+
   const filteredSpaces = spaces.filter(
     (space) => !searchTerm || space.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -82,139 +76,175 @@ export default function Spaces() {
     yellow: 'bg-yellow-500',
   };
 
-  const getSpacePageCount = (spaceId) => {
-    return pages.filter((p) => p.space_id === spaceId).length;
-  };
-
-  const totalPages = pages.length;
-  const totalCollaborators = new Set(spaces.flatMap((s) => s.members || [])).size;
-
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Spaces</h1>
-          <p className="text-gray-500 mt-1">Organize your documentation and knowledge base</p>
+    <div className="flex h-screen bg-white dark:bg-gray-950 overflow-hidden">
+      {/* Sidebar */}
+      <div className="w-56 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900/50">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer">
+            <div className="w-6 h-6 rounded bg-violet-600 flex items-center justify-center text-white text-xs font-bold">
+              A
+            </div>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Workspace</span>
+          </div>
         </div>
-        <Button
-          onClick={() => {
-            setEditingSpace(null);
-            setShowModal(true);
-          }}
-          className="gap-2 bg-violet-600 hover:bg-violet-700"
-        >
-          <Plus className="w-4 h-4" />
-          New Space
-        </Button>
+
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto space-y-1 p-2">
+          <div className="px-2 py-1.5">
+            <p className="text-xs text-gray-500 uppercase font-semibold">Quick Links</p>
+          </div>
+
+          <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+            <Search className="w-4 h-4" />
+            For you
+          </button>
+          <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+            <FileText className="w-4 h-4" />
+            Recent
+          </button>
+          <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+            <Zap className="w-4 h-4" />
+            Starred
+          </button>
+
+          <div className="h-px bg-gray-200 dark:bg-gray-800 my-2" />
+
+          <div className="px-2 py-1.5">
+            <p className="text-xs text-gray-500 uppercase font-semibold">Spaces</p>
+          </div>
+
+          {spaces.map((space) => (
+            <button
+              key={space.id}
+              onClick={() => setSelectedSpace(space.id)}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
+                selectedSpace === space.id
+                  ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+              }`}
+            >
+              <div className={`w-5 h-5 rounded text-xs flex items-center justify-center text-white ${colorClasses[space.color]}`}>
+                {space.icon}
+              </div>
+              <span className="truncate text-left">{space.name}</span>
+            </button>
+          ))}
+
+          <button
+            onClick={() => {
+              setEditingSpace(null);
+              setShowModal(true);
+            }}
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 mt-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create
+          </button>
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="p-2 border-t border-gray-200 dark:border-gray-800">
+          <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800">
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Search & Quick Actions */}
-      {spaces.length > 0 && (
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 max-w-md">
-            <FullTextSearch spaceId={null} />
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header Bar */}
+        <div className="h-12 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 bg-white dark:bg-gray-950">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Untitled</span>
           </div>
-          <Button variant="outline" onClick={() => setShowQuickNav(true)} className="gap-2">
-            <Zap className="w-4 h-4" />
-            Quick Nav (Cmd+K)
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-500">Saved</span>
+            <Button size="sm" className="h-7 px-3 text-xs bg-violet-600 hover:bg-violet-700">
+              Publish
+            </Button>
+            <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
+              Close
+            </Button>
+          </div>
         </div>
-      )}
 
-      {/* Recent Pages Widget */}
-      {spaces.length > 0 && <RecentPagesWidget spaceId={null} limit={5} />}
-
-      {/* Stats Cards */}
-      {spaces.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="p-4 glass-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Spaces</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {spaces.length}
-                </p>
-              </div>
-              <FolderOpen className="w-8 h-8 text-violet-600" />
+        {/* Content Area */}
+        {!selectedSpace ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select a space</h2>
+              <p className="text-sm text-gray-500">Choose a space from the sidebar to get started</p>
             </div>
-          </Card>
-          <Card className="p-4 glass-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Pages</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {totalPages}
-                </p>
-              </div>
-              <FileText className="w-8 h-8 text-blue-600" />
-            </div>
-          </Card>
-          <Card className="p-4 glass-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Collaborators</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {totalCollaborators}
-                </p>
-              </div>
-              <Users className="w-8 h-8 text-green-600" />
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Spaces Grid */}
-      {isLoading ? (
-        <div className="text-center py-12">Loading...</div>
-      ) : filteredSpaces.length === 0 && searchTerm ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No spaces found matching "{searchTerm}"</p>
-        </div>
-      ) : filteredSpaces.length === 0 ? (
-        <EmptyState
-          icon={FolderOpen}
-          title="No spaces yet"
-          description="Create your first space to start organizing documentation and knowledge."
-          actionLabel="Create Space"
-          onAction={() => {
-            setEditingSpace(null);
-            setShowModal(true);
-          }}
-        />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredSpaces.map((space) => (
-            <Link key={space.id} to={`${createPageUrl('SpaceDetail')}?id=${space.id}`}>
-              <Card className="p-5 glass-card hover:shadow-lg transition-all cursor-pointer group">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-lg ${colorClasses[space.color]} flex items-center justify-center text-2xl flex-shrink-0`}
-                  >
-                    {space.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-violet-600">
-                      {space.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 line-clamp-2 mt-1">
-                      {space.description || 'No description'}
-                    </p>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <FileText className="w-3 h-3" />
-                        {getSpacePageCount(space.id)} pages
-                      </span>
-                      {space.is_public && <span className="text-green-600">Public</span>}
-                    </div>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-violet-600 group-hover:translate-x-1 transition-all" />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-2xl">
+              {/* Editor Toolbar */}
+              <div className="flex items-center gap-1 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <button className="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
+                  <FileText className="w-4 h-4" />
+                </button>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Write</span>
+                <span className="text-sm text-gray-400 ml-2">Tt Normal text</span>
+                <div className="ml-auto flex items-center gap-1">
+                  {/* Toolbar buttons would go here */}
                 </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
+              </div>
+
+              {/* Title */}
+              <Input
+                placeholder="Give this page a title"
+                className="text-2xl font-semibold border-0 p-0 focus-visible:ring-0 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-600 h-auto mb-4"
+              />
+
+              {/* Meta info */}
+              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <span>By {base44?.auth?.me?.()?.full_name || 'Me'}</span>
+                <span>•</span>
+                <span>Hardy Page Status</span>
+                <span>•</span>
+                <span>Classification: Error Retrieving Data</span>
+              </div>
+
+              {/* Editor placeholder */}
+              <p className="text-sm text-gray-500 dark:text-gray-400">Press space to Ask Rovo or / to insert elements</p>
+
+              {/* Templates footer */}
+              <div className="mt-12 flex items-center gap-2 flex-wrap">
+                <Button variant="outline" size="sm" className="text-xs">
+                  <FileText className="w-3 h-3 mr-1" />
+                  Synerjkai Project Te...
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  Meeting notes
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  Project plan
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  All templates
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  Table
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  Info panel
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  Table of contents
+                </Button>
+                <Button variant="outline" size="sm" className="text-xs">
+                  More elements
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <SpaceModal
@@ -226,12 +256,6 @@ export default function Spaces() {
         space={editingSpace}
         onSave={handleSave}
         isLoading={createMutation.isPending || updateMutation.isPending}
-      />
-
-      <QuickNavigationDialog
-        open={showQuickNav}
-        onClose={() => setShowQuickNav(false)}
-        spaceId={null}
       />
     </div>
   );
