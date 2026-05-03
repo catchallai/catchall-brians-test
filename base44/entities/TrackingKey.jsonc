@@ -1,0 +1,43 @@
+{
+  "name": "TrackingKey",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Friendly name for this tracking key (e.g. 'Main Website')"
+    },
+    "key": {
+      "type": "string",
+      "description": "The unique site key / token sent with tracking requests"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain this key is intended for (e.g. example.com)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked"
+      ],
+      "default": "active"
+    },
+    "created_by_email": {
+      "type": "string"
+    },
+    "last_seen": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time a tracking ping was received with this key"
+    },
+    "total_events": {
+      "type": "number",
+      "default": 0,
+      "description": "Cumulative event count received"
+    }
+  },
+  "required": [
+    "name",
+    "key"
+  ]
+}

@@ -31,6 +31,7 @@ import {
   ToggleRight,
   RefreshCw,
   Lock,
+  Activity,
 } from 'lucide-react';
 import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
@@ -39,6 +40,7 @@ import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
+import TrackingSettings from '@/components/settings/TrackingSettings';
 
 const SETTINGS_TABS = [
   'profile',
@@ -48,6 +50,7 @@ const SETTINGS_TABS = [
   'features',
   'autosync',
   'integrations',
+  'tracking',
   'rbac',
   'users',
   'data',
@@ -210,6 +213,10 @@ export default function Settings() {
           <TabsTrigger value="integrations" className="gap-2">
             <Globe className="w-4 h-4" />
             Integrations
+          </TabsTrigger>
+          <TabsTrigger value="tracking" className="gap-2">
+            <Activity className="w-4 h-4" />
+            Tracking
           </TabsTrigger>
           <TabsTrigger value="rbac" className="gap-2">
             <Lock className="w-4 h-4" />
@@ -542,6 +549,21 @@ export default function Settings() {
         {/* Integrations Tab */}
         <TabsContent value="integrations">
           <HubSpotSync />
+        </TabsContent>
+
+        {/* Tracking Tab */}
+        <TabsContent value="tracking">
+          {user?.role === 'admin' ? (
+            <TrackingSettings />
+          ) : (
+            <Card className="glass-card rounded-2xl">
+              <CardContent className="pt-6">
+                <p className="text-gray-600 dark:text-gray-400">
+                  Admin access required to manage tracking keys.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* RBAC Tab */}

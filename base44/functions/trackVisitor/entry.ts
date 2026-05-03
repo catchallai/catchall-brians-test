@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -6,8 +6,21 @@ Deno.serve(async (req) => {
 
     // Allow anonymous tracking (no auth required)
     const body = await req.json();
-    const { sessionId, page, referrer, timeSpent, scrollDepth, device, browser, isNewSession } =
-      body;
+    const { siteKey, sessionId, page, referrer, timeSpent, scrollDepth, device, browser, isNewSession } = body;
+
+    // Validate siteKey if provided
+    if (siteKey) {
+      const keys = await base44.asServiceRole.entities.TrackingKey.filter({ key: siteKey, status: 'active' });
+      if (keys.length === 0) {
+        return Response.json({ error: 'Invalid or revoked site key' }, { status: 403 });
+      }
+      // Update last_seen and increment total_events
+      const tk = keys[0];
+      base44.asServiceRole.entities.TrackingKey.update(tk.id, {
+        last_seen: new Date().toISOString(),
+        total_events: (tk.total_events || 0) + 1,
+      }).catch(() => {});
+    }
 
     // Get visitor IP and location
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
@@ -73,6 +86,7 @@ Deno.serve(async (req) => {
       session = await base44.asServiceRole.entities.VisitorSession.create({
         session_id: sessionId,
         visitor_ip: hashedIp,
+        site_key: siteKey || null,
         ...locationData,
         pages_viewed: 1,
         time_on_site: timeSpent || 0,
@@ -103,9 +117,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Tracking error:', error);
     return Response.json(
-      {
-        error: error.message,
-      },
+      { error: error.message },
       { status: 500 }
     );
   }
