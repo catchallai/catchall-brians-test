@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, MoreHorizontal, Trash2, Edit, FileText, Eye, X } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, Edit, FileText, Eye, X, Upload, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,9 @@ export default function BrandGuidelineManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [viewingId, setViewingId] = useState(null);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ name: '', guidelines: '', color_palette: '', typography: '', logo_url: '', voice_tone: '' });
+  const [formData, setFormData] = useState({ name: '', guidelines: '', color_palette: '', typography: '', logo_url: '', voice_tone: '', dos_image_url: '', donts_image_url: '' });
+  const [uploadingDos, setUploadingDos] = useState(false);
+  const [uploadingDonts, setUploadingDonts] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: brands = [], isLoading } = useQuery({
@@ -73,8 +75,29 @@ export default function BrandGuidelineManagement() {
       typography: brand.typography || '',
       logo_url: brand.logo_url || '',
       voice_tone: brand.voice_tone || '',
+      dos_image_url: brand.dos_image_url || '',
+      donts_image_url: brand.donts_image_url || '',
     });
     setIsOpen(true);
+  };
+
+  const handleImageUpload = async (file, type) => {
+    if (!file) return;
+    try {
+      if (type === 'dos') setUploadingDos(true);
+      else setUploadingDonts(true);
+
+      const response = await base44.integrations.Core.UploadFile({ file });
+      setFormData((prev) => ({
+        ...prev,
+        [type === 'dos' ? 'dos_image_url' : 'donts_image_url']: response.file_url,
+      }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      if (type === 'dos') setUploadingDos(false);
+      else setUploadingDonts(false);
+    }
   };
 
   const parseColors = (colorString) => {
@@ -110,7 +133,7 @@ export default function BrandGuidelineManagement() {
             <Button
               onClick={() => {
                 setEditingId(null);
-                setFormData({ name: '', guidelines: '', color_palette: '', typography: '' });
+                setFormData({ name: '', guidelines: '', color_palette: '', typography: '', logo_url: '', voice_tone: '', dos_image_url: '', donts_image_url: '' });
               }}
               className="bg-violet-600 hover:bg-violet-700 gap-2"
             >
@@ -175,6 +198,87 @@ export default function BrandGuidelineManagement() {
                   rows={4}
                 />
               </div>
+              <div className="space-y-3">
+                <Label>Do's & Don'ts Examples</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Do's Image</label>
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 text-center hover:border-violet-400 transition-colors">
+                      {formData.dos_image_url ? (
+                        <div className="space-y-2">
+                          <img src={formData.dos_image_url} alt="Do's" className="w-full h-24 object-cover rounded" />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setFormData({ ...formData, dos_image_url: '' })}
+                            className="w-full text-xs"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer block">
+                          {uploadingDos ? (
+                            <div className="flex justify-center">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mx-auto mb-1 text-gray-400" />
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Upload do's image</p>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleImageUpload(e.target.files?.[0], 'dos')}
+                            disabled={uploadingDos}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Don'ts Image</label>
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-3 text-center hover:border-red-400 transition-colors">
+                      {formData.donts_image_url ? (
+                        <div className="space-y-2">
+                          <img src={formData.donts_image_url} alt="Don'ts" className="w-full h-24 object-cover rounded" />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setFormData({ ...formData, donts_image_url: '' })}
+                            className="w-full text-xs"
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className="cursor-pointer block">
+                          {uploadingDonts ? (
+                            <div className="flex justify-center">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4 mx-auto mb-1 text-gray-400" />
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Upload don'ts image</p>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleImageUpload(e.target.files?.[0], 'donts')}
+                            disabled={uploadingDonts}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="flex gap-3 justify-end pt-4">
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
                   Cancel
@@ -207,7 +311,7 @@ export default function BrandGuidelineManagement() {
               <Button
                 onClick={() => {
                   setEditingId(null);
-                  setFormData({ name: '', guidelines: '', color_palette: '', typography: '' });
+                  setFormData({ name: '', guidelines: '', color_palette: '', typography: '', logo_url: '', voice_tone: '', dos_image_url: '', donts_image_url: '' });
                 }}
                 variant="outline"
                 className="gap-2"
@@ -352,14 +456,33 @@ export default function BrandGuidelineManagement() {
                         </p>
                       </div>
                     )}
-                    {brand.guidelines && (
+                    {(brand.dos_image_url || brand.donts_image_url) && (
                       <div>
-                        <h3 className="font-semibold mb-2">Guidelines</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                          {brand.guidelines}
-                        </p>
+                        <h3 className="font-semibold mb-3">Do's & Don'ts</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {brand.dos_image_url && (
+                            <div>
+                              <p className="text-sm font-medium mb-2 text-green-600 dark:text-green-400">✓ Do's</p>
+                              <img src={brand.dos_image_url} alt="Do's" className="w-full rounded-lg border border-green-200 dark:border-green-800" />
+                            </div>
+                          )}
+                          {brand.donts_image_url && (
+                            <div>
+                              <p className="text-sm font-medium mb-2 text-red-600 dark:text-red-400">✗ Don'ts</p>
+                              <img src={brand.donts_image_url} alt="Don'ts" className="w-full rounded-lg border border-red-200 dark:border-red-800" />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
+                    {brand.guidelines && (
+                       <div>
+                         <h3 className="font-semibold mb-2">Guidelines</h3>
+                         <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                           {brand.guidelines}
+                         </p>
+                       </div>
+                     )}
                   </div>
                 </div>
               ) : null;
