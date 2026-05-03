@@ -45,6 +45,16 @@ export default function Spaces() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Space.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['spaces'] });
+      if (selectedSpace === deleteMutation.variables) {
+        setSelectedSpace(null);
+      }
+    },
+  });
+
   const handleSave = (data) => {
     if (editingSpace) {
       updateMutation.mutate({ id: editingSpace.id, data });
@@ -116,20 +126,29 @@ export default function Spaces() {
           </div>
 
           {spaces.map((space) => (
-            <button
-              key={space.id}
-              onClick={() => setSelectedSpace(space.id)}
-              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
-                selectedSpace === space.id
-                  ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
-              }`}
-            >
-              <div className={`w-5 h-5 rounded text-xs flex items-center justify-center text-white ${colorClasses[space.color]}`}>
-                {space.icon}
-              </div>
-              <span className="truncate text-left">{space.name}</span>
-            </button>
+            <div key={space.id} className="group relative">
+              <button
+                onClick={() => setSelectedSpace(space.id)}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors ${
+                  selectedSpace === space.id
+                    ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded text-xs flex items-center justify-center text-white ${colorClasses[space.color]}`}>
+                  {space.icon}
+                </div>
+                <span className="truncate text-left">{space.name}</span>
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(space.id)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all p-1"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           ))}
 
           <button
