@@ -109,6 +109,30 @@ const INTEGRATIONS = [
     status: 'available',
     category: 'Project Management',
   },
+  {
+    id: 'monday',
+    name: 'Monday.com',
+    description: 'Manage projects and workflows on Monday.com',
+    icon: 'https://monday.com/favicon.ico',
+    status: 'available',
+    category: 'Project Management',
+  },
+  {
+    id: 'clickup',
+    name: 'ClickUp',
+    description: 'Connect and manage ClickUp tasks and projects',
+    icon: 'https://clickup.com/favicon.ico',
+    status: 'available',
+    category: 'Project Management',
+  },
+  {
+    id: 'atlassian',
+    name: 'Atlassian',
+    description: 'Integrate with Jira and Confluence',
+    icon: 'https://www.atlassian.com/favicon.ico',
+    status: 'available',
+    category: 'Project Management',
+  },
 ];
 
 const CATEGORIES = [...new Set(INTEGRATIONS.map(i => i.category))].sort();
