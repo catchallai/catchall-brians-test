@@ -57,8 +57,7 @@ const SETTINGS_SECTIONS = [
   {
     group: 'Administration',
     tabs: [
-      { id: 'rbac', label: 'RBAC', icon: Lock },
-      { id: 'users', label: 'Team Users', icon: User },
+      { id: 'team', label: 'Team & Permissions', icon: Lock },
       { id: 'data', label: 'Data Management', icon: Database },
       { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
       { id: 'ai', label: 'AI Settings', icon: Zap },
@@ -179,24 +178,27 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 min-h-screen max-w-4xl mx-auto">
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Manage your account and preferences
-          </p>
+      <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 sticky top-14 z-10">
+        <div className="p-6 lg:p-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Manage your account and preferences
+            </p>
+          </div>
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Changes
+          </Button>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Changes
-        </Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="glass-card rounded-xl p-0 overflow-x-auto">
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 overflow-hidden">
+        {/* Full-width Tab Navigation */}
+        <div className="glass-card rounded-none p-0 border-b border-gray-200 dark:border-gray-700 sticky top-32 z-10">
+          <div className="flex overflow-x-auto">
             {SETTINGS_SECTIONS.flatMap(section => section.tabs).map(tab => {
               const IconComponent = tab.icon;
               return (
@@ -217,8 +219,11 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Profile Tab */}
-        <TabsContent value="profile">
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-6 lg:p-8 max-w-4xl mx-auto w-full">
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
           <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -321,8 +326,8 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Notifications Tab */}
-        <TabsContent value="notifications">
+          {/* Notifications Tab */}
+          <TabsContent value="notifications">
           <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -397,8 +402,8 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Appearance Tab */}
-        <TabsContent value="appearance">
+          {/* Appearance Tab */}
+          <TabsContent value="appearance">
           <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -449,8 +454,8 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Preferences Tab */}
-        <TabsContent value="preferences">
+          {/* Preferences Tab */}
+          <TabsContent value="preferences">
           <Card className="glass-card rounded-2xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -518,49 +523,57 @@ export default function Settings() {
         </TabsContent>
 
         {/* Auto-Sync Tab */}
-        <TabsContent value="autosync">
-          <AutoSyncSettings />
-        </TabsContent>
+          <TabsContent value="autosync" className="space-y-6">
+            <AutoSyncSettings />
+          </TabsContent>
 
-        {/* RBAC Tab */}
-        <TabsContent value="rbac">
-          <RolePermissionsManager />
-        </TabsContent>
+          {/* Team & Permissions Tab */}
+          <TabsContent value="team" className="space-y-6">
+            <div className="space-y-6">
+              {/* Team Users Section */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Team Users</h2>
+                <UserManagement />
+              </div>
 
-        {/* Users Tab */}
-        <TabsContent value="users">
-          <UserManagement />
-        </TabsContent>
+              {/* RBAC Section */}
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Role Permissions</h2>
+                <RolePermissionsManager />
+              </div>
+            </div>
+          </TabsContent>
 
-        {/* Data Management Tab */}
-        <TabsContent value="data">
-          {user?.role === 'admin' ? (
-            <DataManagement />
-          ) : (
-            <Card className="glass-card rounded-2xl">
-              <CardContent className="pt-6">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Admin access required for data management.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+          {/* Data Management Tab */}
+          <TabsContent value="data" className="space-y-6">
+            {user?.role === 'admin' ? (
+              <DataManagement />
+            ) : (
+              <Card className="glass-card rounded-2xl">
+                <CardContent className="pt-6">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Admin access required for data management.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-        {/* AI Settings Tab */}
-        <TabsContent value="ai">
-          {user?.role === 'admin' ? (
-            <AIToggleSettings />
-          ) : (
-            <Card className="glass-card rounded-2xl">
-              <CardContent className="pt-6">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Admin access required to manage AI settings.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+          {/* AI Settings Tab */}
+          <TabsContent value="ai" className="space-y-6">
+            {user?.role === 'admin' ? (
+              <AIToggleSettings />
+            ) : (
+              <Card className="glass-card rounded-2xl">
+                <CardContent className="pt-6">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Admin access required to manage AI settings.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
