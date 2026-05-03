@@ -262,6 +262,7 @@ const navigation = [
   { name: 'divider', label: 'Support', collapsible: true },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
+  { name: 'Platform Map', icon: Network, page: 'PlatformWorkflowMap' },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
@@ -618,6 +619,7 @@ const SIDEBAR_ICONS = {
   TalentSurveys: BarChart3,
   Settings: Settings,
   HelpCenter: HelpCircle,
+  PlatformWorkflowMap: Network,
   CompanySettings: Building2,
   ActivityLogs: Activity,
   };
