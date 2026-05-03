@@ -56,6 +56,7 @@ import TagsEditor from '@/components/wiki/TagsEditor';
 import PageLockPanel from '@/components/wiki/PageLockPanel';
 import { useCollabEditor } from '@/components/wiki/useCollabEditor';
 import ReadingProgressBar from '@/components/wiki/ReadingProgressBar';
+import TableOfContents from '@/components/wiki/TableOfContents';
 
 const modules = {
   toolbar: {
@@ -625,17 +626,22 @@ export default function WikiPageEditor() {
           </div>
 
           {/* Right panel */}
-          {showRightSidebar && pageId && (
-            <div className="w-72 shrink-0 border-l border-gray-100 dark:border-gray-800 overflow-y-auto p-5 space-y-6">
-              <PageLockPanel page={page} pageId={pageId} user={user} />
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-                <PageWatchersPanel pageId={pageId} user={user} />
-              </div>
-              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-                <RelatedPagesPanel currentPage={page} />
-              </div>
-            </div>
-          )}
+           {showRightSidebar && pageId && (
+             <div className="w-72 shrink-0 border-l border-gray-100 dark:border-gray-800 overflow-y-auto p-5 space-y-6">
+               <div>
+                 <TableOfContents content={content} scrollRef={editorScrollRef} />
+               </div>
+               <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                 <PageLockPanel page={page} pageId={pageId} user={user} />
+               </div>
+               <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                 <PageWatchersPanel pageId={pageId} user={user} />
+               </div>
+               <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                 <RelatedPagesPanel currentPage={page} />
+               </div>
+             </div>
+           )}
         </div>
       </div>
 
