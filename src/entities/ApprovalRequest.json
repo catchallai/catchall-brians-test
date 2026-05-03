@@ -1,0 +1,68 @@
+{
+  "name": "ApprovalRequest",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Approval request title"
+    },
+    "description": {
+      "type": "string",
+      "description": "What needs approval"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["media", "content", "design", "copy", "other"],
+      "description": "Type of approval request"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "media_asset_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Media assets awaiting approval"
+    },
+    "submitted_by": {
+      "type": "string",
+      "description": "Email of submitter"
+    },
+    "assigned_to": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Emails of approvers"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_review", "approved", "rejected", "changes_requested"],
+      "default": "pending",
+      "description": "Overall approval status"
+    },
+    "feedback": {
+      "type": "string",
+      "description": "Approver feedback/comments"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email of approver"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When approved"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Approval deadline"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "urgent"],
+      "default": "medium",
+      "description": "Priority level"
+    }
+  },
+  "required": ["title", "type"]
+}

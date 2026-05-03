@@ -1,0 +1,54 @@
+{
+  "name": "MediaAsset",
+  "type": "object",
+  "properties": {
+    "file_name": {
+      "type": "string",
+      "description": "Original file name"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the media file"
+    },
+    "folder_id": {
+      "type": "string",
+      "description": "Associated MediaFolder ID"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "File type (image, video, document, etc)"
+    },
+    "file_size": {
+      "type": "integer",
+      "description": "File size in bytes"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email of uploader"
+    },
+    "approval_status": {
+      "type": "string",
+      "enum": ["pending", "in_review", "approved", "rejected"],
+      "default": "pending",
+      "description": "Approval status"
+    },
+    "approval_request_id": {
+      "type": "string",
+      "description": "Link to approval request"
+    },
+    "description": {
+      "type": "string",
+      "description": "Asset description"
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Tags for categorization"
+    }
+  },
+  "required": ["file_name", "folder_id"]
+}

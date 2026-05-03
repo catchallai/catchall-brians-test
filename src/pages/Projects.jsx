@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { generateProjectFolders } from '@/components/collaboration/ProjectMediaFolderGenerator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -76,10 +77,22 @@ export default function Projects() {
     mutationFn: async (data) => {
       return await base44.entities.Project.create(data);
     },
-    onSuccess: () => {
+    onSuccess: async (newProject) => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       setShowModal(false);
       setEditingProject(null);
+      // Auto-generate media folders for the new project type
+      try {
+        await generateProjectFolders({
+          id: newProject.id,
+          name: newProject.name,
+          type: newProject.project_type || 'default',
+          created_by: newProject.created_by,
+        });
+        queryClient.invalidateQueries({ queryKey: ['media-folders'] });
+      } catch {
+        // Folder generation failure is non-blocking
+      }
     },
   });
 

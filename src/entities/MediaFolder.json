@@ -1,0 +1,42 @@
+{
+  "name": "MediaFolder",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Folder name"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Associated project name"
+    },
+    "folder_type": {
+      "type": "string",
+      "enum": ["assets", "drafts", "approved", "final", "reference", "archived"],
+      "description": "Type of media folder"
+    },
+    "description": {
+      "type": "string",
+      "description": "Folder description"
+    },
+    "is_project_auto_generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether folder was auto-generated for project type"
+    },
+    "file_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Number of files in folder"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": ["name", "folder_type"]
+}

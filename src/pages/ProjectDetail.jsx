@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Trash2, CheckCircle2, Circle, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, CheckCircle2, Circle, ArrowLeft, FolderOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import TaskModal from '@/components/modals/TaskModal.jsx';
@@ -15,6 +15,7 @@ import MilestoneModal from '@/components/modals/MilestoneModal.jsx';
 import ActivityLog from '@/components/projects/ActivityLog.jsx';
 import ResourcePlanner from '@/components/projects/ResourcePlanner.jsx';
 import TimeTracker from '@/components/projects/TimeTracker.jsx';
+import ProjectFoldersView from '@/components/collaboration/ProjectFoldersView.jsx';
 
 export default function ProjectDetail() {
   const [searchParams] = useSearchParams();
@@ -497,6 +498,19 @@ export default function ProjectDetail() {
             </Card>
           </div>
         </div>
+      </div>
+
+      {/* Media Folders & Approvals Section */}
+      <div className="max-w-7xl mx-auto px-6 pb-6">
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-sm">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-2">
+            <FolderOpen className="w-5 h-5 text-violet-600" />
+            <h3 className="text-lg font-semibold">Media Folders & Approvals</h3>
+          </div>
+          <div className="p-4">
+            <ProjectFoldersView project={project} />
+          </div>
+        </Card>
       </div>
 
       {/* Legacy Tabs (hidden but keeping for compatibility) */}
