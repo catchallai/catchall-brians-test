@@ -228,7 +228,6 @@ const navigation = [
   { name: 'divider', label: 'Social', collapsible: true },
   { name: 'Social Dashboard', icon: BarChart3, page: 'SocialDashboard' },
   { name: 'Social Calendar', icon: CalendarDays, page: 'SocialCalendar' },
-  { name: 'Social Performance', icon: TrendingUp, page: 'SocialPerformance' },
   { name: 'Social Analytics', icon: Share2, page: 'SocialMedia' },
   { name: 'Social Performance', icon: TrendingUp, page: 'SocialPerformance' },
   { name: 'All Channels', icon: Share2, page: 'AllChannels' },
