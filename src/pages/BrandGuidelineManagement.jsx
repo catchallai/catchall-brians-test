@@ -145,7 +145,7 @@ export default function BrandGuidelineManagement() {
             <DialogHeader className="text-center">
               <DialogTitle className="text-center">{editingId ? 'Edit Brand' : 'Create Brand Guidelines'}</DialogTitle>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto space-y-4">
+            <div className="space-y-4">
               <div className="max-w-sm mx-auto w-full space-y-4">
                 <Label>Brand Name *</Label>
                 <Input
