@@ -206,9 +206,9 @@ export default function Settings() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <div className="space-y-4">
+        <TabsList className="glass-card flex-col h-auto space-y-4 p-4">
           {SETTINGS_SECTIONS.map(section => (
-            <div key={section.group} className="space-y-3">
+            <div key={section.group} className="space-y-3 w-full">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-3">
                 {section.group}
               </h3>
@@ -229,7 +229,7 @@ export default function Settings() {
               </div>
             </div>
           ))}
-        </div>
+        </TabsList>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
