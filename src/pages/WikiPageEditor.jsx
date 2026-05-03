@@ -270,14 +270,16 @@ export default function WikiPageEditor() {
       const currentVersion = page?.version_number || 0;
 
       if (pageId) {
-        // Save version history
+        // Save version history with timestamp and editor name
         await base44.entities.WikiPageVersion.create({
           page_id: pageId,
           version_number: currentVersion,
           title: page.title,
           content: page.content,
           edited_by: user?.email,
+          editor_name: user?.full_name || user?.email?.split('@')[0],
           change_summary: changeSummary || undefined,
+          created_at: new Date().toISOString(),
         });
 
         return await base44.entities.WikiPage.update(pageId, {

@@ -1,0 +1,45 @@
+{
+  "name": "WikiPageVersion",
+  "type": "object",
+  "properties": {
+    "page_id": {
+      "type": "string",
+      "description": "Associated wiki page ID"
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Version number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Page title at this version"
+    },
+    "content": {
+      "type": "string",
+      "description": "Page content at this version"
+    },
+    "edited_by": {
+      "type": "string",
+      "description": "Email of editor"
+    },
+    "editor_name": {
+      "type": "string",
+      "description": "Name of editor"
+    },
+    "change_summary": {
+      "type": "string",
+      "description": "Summary of changes made"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this version was created"
+    }
+  },
+  "required": [
+    "page_id",
+    "version_number",
+    "title",
+    "content"
+  ]
+}

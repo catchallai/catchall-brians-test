@@ -252,7 +252,7 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
               {/* Revenue Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('Deals')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">Revenue</p>
                   <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-300" />
@@ -272,9 +272,9 @@ export default function Dashboard() {
                     {Math.abs(revenueChange)}% month
                   </p>
                 </div>
-              </div>
+              </button>
               {/* Pipeline Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('Deals')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">Pipeline</p>
                   <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-orange-300" />
@@ -294,9 +294,9 @@ export default function Dashboard() {
                     {Math.abs(pipelineChange)}% month
                   </p>
                 </div>
-              </div>
+              </button>
               {/* SEO Score Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('SEODashboard')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">SEO Score</p>
                   <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-blue-300" />
@@ -305,9 +305,9 @@ export default function Dashboard() {
                 <p className="text-blue-300 text-[10px] sm:text-xs font-medium mt-1">
                   {avgSEOScore > 70 ? '✓ Good' : avgSEOScore > 0 ? '◐ Fair' : 'N/A'}
                 </p>
-              </div>
+              </button>
               {/* Web Traffic Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('TrafficAnalytics')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">Web Traffic</p>
                   <Globe className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-300" />
@@ -318,9 +318,9 @@ export default function Dashboard() {
                     : monthlyTraffic}
                 </p>
                 <p className="text-cyan-300 text-[10px] sm:text-xs font-medium mt-1">visits/mo</p>
-              </div>
+              </button>
               {/* Social Mentions Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('SocialListening')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">Social</p>
                   <Radio className="w-3 h-3 sm:w-4 sm:h-4 text-pink-300" />
@@ -329,9 +329,9 @@ export default function Dashboard() {
                 <p className="text-pink-300 text-[10px] sm:text-xs font-medium mt-1">
                   {avgEngagementRate}% eng.
                 </p>
-              </div>
+              </button>
               {/* Alerts Card */}
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors">
+              <button onClick={() => navigate('SocialListening')} className="text-left bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl px-3 py-3 sm:px-4 sm:py-4 border border-white/20 hover:bg-white/15 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-violet-100 text-xs sm:text-sm">Alerts</p>
                   <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
@@ -342,7 +342,7 @@ export default function Dashboard() {
                 >
                   {criticalAlerts > 0 ? '⚠ action' : '✓ clear'}
                 </p>
-              </div>
+              </button>
             </div>
           </div>
         </div>

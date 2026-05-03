@@ -122,10 +122,10 @@ export default function VersionHistory({ open, onClose, pageId, onRevert }) {
                           </Badge>
                           {idx === 0 && <Badge className="bg-green-500">Current</Badge>}
                           <span className="text-sm text-gray-500">
-                            {format(new Date(version.created_date), 'MMM d, yyyy h:mm a')}
+                            {format(new Date(version.created_at || version.created_date), 'MMM d, yyyy h:mm a')}
                           </span>
                           <span className="text-sm text-gray-600 dark:text-gray-400">
-                            by {version.edited_by}
+                            by {version.editor_name || version.edited_by?.split('@')[0]}
                           </span>
                         </div>
                         <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
