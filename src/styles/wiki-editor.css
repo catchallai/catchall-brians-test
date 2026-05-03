@@ -9,7 +9,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 2px;
-  overflow-x: auto;
+  overflow: visible;
   position: relative;
   z-index: 10;
 }
@@ -45,6 +45,8 @@
   font-size: 16px;
   font-family: inherit;
   border: none;
+  width: 100%;
+  max-width: 100%;
 }
 
 .ql-editor {
