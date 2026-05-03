@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateProjectFolders } from '@/components/collaboration/ProjectMediaFolderGenerator';
@@ -26,7 +25,6 @@ import {
   Users,
   LayoutGrid,
   List,
-  Kanban,
 } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import ProjectModal from '@/components/modals/ProjectModal';
@@ -35,14 +33,13 @@ import ProjectKanbanBoard from '@/components/projects/ProjectKanbanBoard';
 import ProjectTimeline from '@/components/projects/ProjectTimeline';
 
 export default function Projects() {
-  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'kanban', or 'timeline'
+  const [viewMode, setViewMode] = useState('board'); // 'board', 'grid', or 'timeline'
   const [selectedProject, setSelectedProject] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -201,20 +198,12 @@ export default function Projects() {
               <LayoutGrid className="w-4 h-4" />
             </Button>
             <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              variant={viewMode === 'board' ? 'default' : 'ghost'}
               size="sm"
-              onClick={() => setViewMode('list')}
-              title="List View"
+              onClick={() => setViewMode('board')}
+              title="Kanban Board"
             >
               <List className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('kanban')}
-              title="Kanban View"
-            >
-              <Kanban className="w-4 h-4" />
             </Button>
             <Button
               variant={viewMode === 'timeline' ? 'default' : 'ghost'}
@@ -386,7 +375,7 @@ export default function Projects() {
               <Card
                 key={project.id}
                 className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer"
-                onClick={() => navigate(`/ProjectDetail/${project.id}`)}
+                onClick={() => setSelectedProject(project)}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -436,61 +425,7 @@ export default function Projects() {
             ))}
           </div>
         )
-      ) : viewMode === 'list' ? (
-        /* List View */
-        isLoading ? (
-          <div className="space-y-3">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-16 rounded-lg" />
-            ))}
-          </div>
-        ) : filteredProjects.length === 0 ? (
-          <EmptyState
-            icon={Briefcase}
-            title="No projects yet"
-            description="Start creating projects to organize your work."
-            actionLabel="New Project"
-            onAction={() => {
-              setEditingProject(null);
-              setShowModal(true);
-            }}
-          />
-        ) : (
-          <div className="space-y-3">
-            {filteredProjects.map((project) => (
-              <Card
-                key={project.id}
-                className="p-4 glass-card hover:shadow-md transition-all cursor-pointer"
-                onClick={() => navigate(`/ProjectDetail/${project.id}`)}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white truncate">
-                      {project.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 truncate">{getCompanyName(project.company_id)}</p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{project.progress}%</p>
-                      <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-1">
-                        <div
-                          className="bg-violet-600 h-1.5 rounded-full"
-                          style={{ width: `${project.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                    <Badge className={statusColors[project.status]}>
-                      {project.status.replace('_', ' ')}
-                    </Badge>
-                    <Badge className={priorityColors[project.priority]}>{project.priority}</Badge>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )
-      ) : viewMode === 'kanban' ? (
+      ) : viewMode === 'board' ? (
         /* Kanban Board View */
         <div>
           {/* Project Selector */}

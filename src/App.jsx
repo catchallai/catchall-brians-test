@@ -40,7 +40,6 @@ import HRISOrgChart from './pages/HRISOrgChart';
 import PublicDataRoomPortal from './pages/PublicDataRoomPortal';
 import SpaceDetail from './pages/SpaceDetail';
 import Documentation from './pages/Documentation';
-import ProjectDetail from './pages/ProjectDetail';
 import CompanySettingsPage from './pages/CompanySettingsPage';
 import PlatformWorkflowMap from './pages/PlatformWorkflowMap';
 import SlideDeckManagement from './pages/SlideDeckManagement';
@@ -48,7 +47,6 @@ import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
 import SocialCalendar from './pages/SocialCalendar';
 import Integrations from './pages/Integrations';
 import Features from './pages/Features';
-import DataRoomPortal from './pages/DataRoomPortal';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -66,7 +64,6 @@ const PUBLIC_ROUTES = [
   '/PublicLandingPage',
   '/PublicLandingPageWrapper',
   '/PublicLegalDocumentSigner',
-  '/DataRoomPortal',
   '/portal',
 ];
 // Precomputed lookup set so isPublicRoute is O(1) and doesn't lowercase per call.
@@ -189,9 +186,7 @@ const AuthenticatedApp = () => {
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
       <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
-      <Route path="/DataRoomPortal" element={<DataRoomPortal />} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
-      <Route path="/ProjectDetail/:id" element={<LayoutWrapper currentPageName="ProjectDetail"><ProjectDetail /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
