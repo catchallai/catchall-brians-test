@@ -55,7 +55,6 @@ const SETTINGS_SECTIONS = [
   {
     group: 'Administration',
     tabs: [
-      { id: 'team', label: 'Team & Permissions', icon: Lock },
       { id: 'data', label: 'Data Management', icon: Database },
       { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
       { id: 'ai', label: 'AI Settings', icon: Zap },
