@@ -142,11 +142,11 @@ export default function BrandGuidelineManagement() {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Brand' : 'Create Brand Guidelines'}</DialogTitle>
+            <DialogHeader className="text-center">
+              <DialogTitle className="text-center">{editingId ? 'Edit Brand' : 'Create Brand Guidelines'}</DialogTitle>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto space-y-4 px-0.5">
-              <div>
+            <div className="flex-1 overflow-y-auto space-y-4">
+              <div className="max-w-sm mx-auto w-full space-y-4">
                 <Label>Brand Name *</Label>
                 <Input
                   value={formData.name}
@@ -279,7 +279,7 @@ export default function BrandGuidelineManagement() {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 justify-end pt-4">
+              <div className="flex gap-3 justify-center pt-4">
                 <Button variant="outline" onClick={() => setIsOpen(false)}>
                   Cancel
                 </Button>
