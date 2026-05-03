@@ -2770,7 +2770,7 @@ ref)
         </div>
 
         {/* Footer */}
-        <div className="bg-[hsl(var(--background))] px-6 py-3.5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800 dark:bg-gray-900 shrink-0">
+        <div className="bg-transparent px-6 py-3.5 flex items-center justify-between border-t border-gray-100 dark:border-gray-800 dark:bg-gray-900 shrink-0">
           <div className="flex items-center gap-3">
             {isPostPublished &&
             <button
