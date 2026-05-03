@@ -41,6 +41,8 @@ import SpaceDetail from './pages/SpaceDetail';
 import Documentation from './pages/Documentation';
 import CompanySettingsPage from './pages/CompanySettingsPage';
 import PlatformWorkflowMap from './pages/PlatformWorkflowMap';
+import SlideDeckManagement from './pages/SlideDeckManagement';
+import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -174,6 +176,8 @@ const AuthenticatedApp = () => {
       <Route path="/Documentation" element={<LayoutWrapper currentPageName="Documentation"><Documentation /></LayoutWrapper>} />
       <Route path="/CompanySettings" element={<LayoutWrapper currentPageName="CompanySettings"><CompanySettingsPage /></LayoutWrapper>} />
       <Route path="/PlatformWorkflowMap" element={<LayoutWrapper currentPageName="PlatformWorkflowMap"><PlatformWorkflowMap /></LayoutWrapper>} />
+      <Route path="/SlideDeckManagement" element={<LayoutWrapper currentPageName="SlideDeckManagement"><SlideDeckManagement /></LayoutWrapper>} />
+      <Route path="/BrandGuidelineManagement" element={<LayoutWrapper currentPageName="BrandGuidelineManagement"><BrandGuidelineManagement /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
