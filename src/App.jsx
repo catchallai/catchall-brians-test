@@ -7,6 +7,7 @@ import NavigationTracker from '@/lib/NavigationTracker';
 import { pagesConfig } from './pages.config';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
+import Permissions from './pages/Permissions';
 import Equity from './pages/Equity';
 import HRISAnnouncements from './pages/HRISAnnouncements';
 import HRISRecognition from './pages/HRISRecognition';
@@ -184,6 +185,7 @@ const AuthenticatedApp = () => {
       <Route path="/SocialCalendar" element={<LayoutWrapper currentPageName="SocialCalendar"><SocialCalendar /></LayoutWrapper>} />
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
       <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
+      <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

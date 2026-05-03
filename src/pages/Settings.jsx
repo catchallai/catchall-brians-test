@@ -33,7 +33,6 @@ import {
   Lock,
 } from 'lucide-react';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
-import TeamAccessMatrix from '@/components/settings/TeamAccessMatrix';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
 
@@ -521,10 +520,7 @@ export default function Settings() {
           <AutoSyncSettings />
         </TabsContent>
 
-        {/* Team & Permissions Tab */}
-        <TabsContent value="team" className="space-y-6">
-          <TeamAccessMatrix />
-        </TabsContent>
+
 
         {/* Data Management Tab */}
         <TabsContent value="data">

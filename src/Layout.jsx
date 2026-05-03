@@ -260,6 +260,7 @@ const navigation = [
   { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support', collapsible: true },
   { name: 'Settings', icon: Settings, page: 'Settings' },
+  { name: 'Permissions', icon: ShieldCheck, page: 'Permissions' },
   { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
   { name: 'Features', icon: Zap, page: 'Features' },
   { name: 'Integrations', icon: Globe, page: 'Integrations' },
