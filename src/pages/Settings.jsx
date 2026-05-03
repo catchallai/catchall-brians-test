@@ -33,7 +33,7 @@ import {
   Lock,
 } from 'lucide-react';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
-import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
+import DepartmentPermissionsManager from '@/components/settings/DepartmentPermissionsManager';
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
@@ -531,10 +531,10 @@ export default function Settings() {
               <UserManagement />
             </div>
 
-            {/* RBAC Section */}
+            {/* Department Permissions Section */}
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Role Permissions</h2>
-              <RolePermissionsManager />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Department Permissions</h2>
+              <DepartmentPermissionsManager />
             </div>
           </div>
         </TabsContent>
