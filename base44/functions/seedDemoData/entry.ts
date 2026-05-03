@@ -423,6 +423,96 @@ Deno.serve(async (req) => {
       results.socialPosts = 'seeded 6';
     }
 
+    // ─── SALES CALLS ──────────────────────────────────────────────────────
+    const existingCalls = await base44.asServiceRole.entities.SalesCall.list();
+    if (existingCalls.length < 3) {
+      const contacts = await base44.asServiceRole.entities.Contact.list();
+      const contactMap = {};
+      contacts.forEach(c => { contactMap[c.email] = c.id; });
+      await base44.asServiceRole.entities.SalesCall.bulkCreate([
+        { contact_id: contactMap['carlos.m@defenseplus.com'] || '', contact_name: 'Carlos Martinez', contact_email: 'carlos.m@defenseplus.com', call_type: 'discovery', duration_minutes: 45, sentiment: 'positive', call_date: dt(3), call_time: '14:00', notes: 'Great fit for enterprise package. Mentioned budget of $150-200K. Interested in demo next week.', recording_url: '', outcome: 'scheduled_next_call', next_follow_up: d(10), owner_email: 'marcus.webb@aerotech.io' },
+        { contact_id: contactMap['ling.wei@orbitdynamics.com'] || '', contact_name: 'Ling Wei', contact_email: 'ling.wei@orbitdynamics.com', call_type: 'demo', duration_minutes: 60, sentiment: 'positive', call_date: dt(1), call_time: '10:30', notes: 'Walked through scanner and data room. Client excited about compliance features. Requested proposal with pricing.', recording_url: '', outcome: 'proposal_sent', next_follow_up: d(7), owner_email: 'marcus.webb@aerotech.io' },
+        { contact_id: contactMap['emma.davis@skylogix.com'] || '', contact_name: 'Emma Davis', contact_email: 'emma.davis@skylogix.com', call_type: 'qualification', duration_minutes: 30, sentiment: 'neutral', call_date: dt(8), call_time: '15:00', notes: 'Initial conversation about pain points. Currently using competitor for compliance. Wants to see comparison.', recording_url: '', outcome: 'needs_analysis_sent', next_follow_up: d(14), owner_email: 'marcus.webb@aerotech.io' },
+      ]);
+      results.salesCalls = 'seeded 3';
+    }
+
+    // ─── SALES QUOTAS ─────────────────────────────────────────────────────
+    const existingQuotas = await base44.asServiceRole.entities.SalesQuota.list();
+    if (existingQuotas.length < 2) {
+      const employees = await base44.asServiceRole.entities.HRISEmployee.list();
+      const empMap = {};
+      employees.forEach(e => { empMap[e.email] = e.id; });
+      await base44.asServiceRole.entities.SalesQuota.bulkCreate([
+        { rep_id: empMap['marcus.webb@aerotech.io'] || '', rep_name: 'Marcus Webb', rep_email: 'marcus.webb@aerotech.io', quota_period: 'Q2 2026', quota_amount: 500000, quota_type: 'arr', currency: 'USD', achieved_amount: 360000, achievement_percentage: 72, status: 'on_track', last_updated: dt(0) },
+        { rep_id: empMap['james.patterson@aerotech.io'] || '', rep_name: 'James Patterson', rep_email: 'james.patterson@aerotech.io', quota_period: 'Q2 2026', quota_amount: 300000, quota_type: 'arr', currency: 'USD', achieved_amount: 245000, achievement_percentage: 82, status: 'on_track', last_updated: dt(0) },
+      ]);
+      results.quotas = 'seeded 2';
+    }
+
+    // ─── SALES SEQUENCES ──────────────────────────────────────────────────
+    const existingSequences = await base44.asServiceRole.entities.SalesSequence.list();
+    if (existingSequences.length < 2) {
+      await base44.asServiceRole.entities.SalesSequence.bulkCreate([
+        { name: 'Enterprise SOC2 Outreach', description: 'Multi-touch email and LinkedIn sequence for enterprise compliance decision-makers', sequence_type: 'email', status: 'active', created_by: user.email, step_count: 5, avg_open_rate: 42.5, avg_click_rate: 18.3, conversion_rate: 12.8 },
+        { name: 'Defense Contractor Nurture', description: '7-step sequence for CMMC-focused companies', sequence_type: 'email', status: 'active', created_by: user.email, step_count: 7, avg_open_rate: 38.9, avg_click_rate: 15.2, conversion_rate: 9.4 },
+      ]);
+      results.sequences = 'seeded 2';
+    }
+
+    // ─── SEQUENCE ENROLLMENTS ──────────────────────────────────────────────
+    const existingEnrollments = await base44.asServiceRole.entities.SequenceEnrollment.list();
+    if (existingEnrollments.length < 3) {
+      const contactsList = await base44.asServiceRole.entities.Contact.list();
+      const contactMap = {};
+      contactsList.forEach(c => { contactMap[c.email] = c.id; });
+      const sequences = await base44.asServiceRole.entities.SalesSequence.list();
+      const seq1 = sequences[0]?.id || 'seq-001';
+      const seq2 = sequences[1]?.id || 'seq-002';
+      await base44.asServiceRole.entities.SequenceEnrollment.bulkCreate([
+        { sequence_id: seq1, contact_id: contactMap['emma.davis@skylogix.com'] || '', contact_name: 'Emma Davis', contact_email: 'emma.davis@skylogix.com', enrollment_date: dt(14), status: 'in_progress', current_step: 2, steps_completed: 2, last_engaged: dt(2), engagement_score: 72 },
+        { sequence_id: seq2, contact_id: contactMap['carlos.m@defenseplus.com'] || '', contact_name: 'Carlos Martinez', contact_email: 'carlos.m@defenseplus.com', enrollment_date: dt(21), status: 'in_progress', current_step: 3, steps_completed: 3, last_engaged: dt(3), engagement_score: 85 },
+        { sequence_id: seq1, contact_id: contactMap['nadia.o@stratusfleet.com'] || '', contact_name: 'Nadia Okonkwo', contact_email: 'nadia.o@stratusfleet.com', enrollment_date: dt(35), status: 'in_progress', current_step: 1, steps_completed: 0, last_engaged: dt(0), engagement_score: 0 },
+      ]);
+      results.sequenceEnrollments = 'seeded 3';
+    }
+
+    // ─── PROPOSALS ────────────────────────────────────────────────────────
+    const existingProposals = await base44.asServiceRole.entities.Proposal.list();
+    if (existingProposals.length < 3) {
+      const contactsList = await base44.asServiceRole.entities.Contact.list();
+      const contactMap = {};
+      contactsList.forEach(c => { contactMap[c.email] = c.id; });
+      await base44.asServiceRole.entities.Proposal.bulkCreate([
+        { deal_id: '', opportunity_id: '', contact_id: contactMap['ling.wei@orbitdynamics.com'] || '', contact_name: 'Ling Wei', contact_email: 'ling.wei@orbitdynamics.com', title: 'Enterprise Scanner + Data Room - Orbit Dynamics', proposal_value: 185000, currency: 'USD', status: 'sent', issue_date: d(7), expiration_date: d(-23), created_by: 'marcus.webb@aerotech.io', viewed_count: 4, last_viewed: dt(2), accepted: false },
+        { deal_id: '', opportunity_id: '', contact_id: contactMap['carlos.m@defenseplus.com'] || '', contact_name: 'Carlos Martinez', contact_email: 'carlos.m@defenseplus.com', title: 'CMMC Readiness Program - Defense Plus', proposal_value: 200000, currency: 'USD', status: 'viewed', issue_date: d(4), expiration_date: d(-26), created_by: 'marcus.webb@aerotech.io', viewed_count: 6, last_viewed: dt(0), accepted: false },
+        { deal_id: '', opportunity_id: '', contact_id: contactMap['james.h@raptorair.com'] || '', contact_name: 'James Holloway', contact_email: 'james.h@raptorair.com', title: 'CRM + Sales Hub Implementation - Raptor Air', proposal_value: 45000, currency: 'USD', status: 'accepted', issue_date: d(20), expiration_date: d(-10), created_by: 'marcus.webb@aerotech.io', viewed_count: 3, last_viewed: dt(15), accepted_date: dt(15) },
+      ]);
+      results.proposals = 'seeded 3';
+    }
+
+    // ─── RESERVATIONS ─────────────────────────────────────────────────────
+    const existingReservations = await base44.asServiceRole.entities.SalesReservation.list();
+    if (existingReservations.length < 2) {
+      const employees = await base44.asServiceRole.entities.HRISEmployee.list();
+      const empMap = {};
+      employees.forEach(e => { empMap[e.email] = e.id; });
+      await base44.asServiceRole.entities.SalesReservation.bulkCreate([
+        { rep_id: empMap['marcus.webb@aerotech.io'] || '', rep_name: 'Marcus Webb', rep_email: 'marcus.webb@aerotech.io', reservation_period: 'Q2 2026', reserved_amount: 360000, currency: 'USD', status: 'active', reason: 'Opportunity pipeline for SOC2 enterprise deals', last_updated: dt(0) },
+        { rep_id: empMap['james.patterson@aerotech.io'] || '', rep_name: 'James Patterson', rep_email: 'james.patterson@aerotech.io', reservation_period: 'Q2 2026', reserved_amount: 245000, currency: 'USD', status: 'active', reason: 'Scheduled CMMC implementation projects', last_updated: dt(0) },
+      ]);
+      results.reservations = 'seeded 2';
+    }
+
+    // ─── SALES FORECASTS ──────────────────────────────────────────────────
+    const existingForecasts2 = await base44.asServiceRole.entities.SalesForecast.list();
+    if (existingForecasts2.length < 1) {
+      await base44.asServiceRole.entities.SalesForecast.bulkCreate([
+        { forecast_period: 'Q2 2026', forecast_type: 'pipeline', total_pipeline: 1850000, expected_revenue: 1200000, forecast_confidence: 75, forecast_by: user.email, created_date: dt(0), assumptions: 'Based on current deal pipeline and historical close rates. Three enterprise deals expected to close by end of Q2. Average deal size $280K.' },
+      ]);
+      results.forecast = 'seeded 1';
+    }
+
     return Response.json({ status: 'success', message: 'Demo data seeded successfully', results });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
