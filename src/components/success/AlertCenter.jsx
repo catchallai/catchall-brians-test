@@ -32,7 +32,7 @@ export default function AlertCenter() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <Card className="glass-card">
           <CardContent className="p-4 text-center">
             <p className="text-2xl font-bold text-red-600">{critical}</p>
@@ -53,7 +53,10 @@ export default function AlertCenter() {
         </Card>
       </div>
 
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      {alerts.length === 0 && (
+        <div className="text-center py-8 text-gray-400 text-sm">No active alerts</div>
+      )}
+      <div className="space-y-2 max-h-80 overflow-y-auto">
         {alerts.slice(0, 20).map((alert) => {
           const contact = contacts.find((c) => c.id === alert.contact_id);
 

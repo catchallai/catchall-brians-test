@@ -41,24 +41,37 @@ export default function CSMTaskManager({ csmFilter = 'all' }) {
     (t) => t.status !== 'completed' && new Date(t.due_date) < new Date()
   ).length;
 
+  const completedToday = tasks.filter(
+    (t) => t.status === 'completed' && new Date(t.completed_date).toDateString() === new Date().toDateString()
+  ).length;
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <Card className="glass-card">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{openTasks}</p>
-            <p className="text-xs text-gray-500">Open Tasks</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{openTasks}</p>
+            <p className="text-xs text-gray-500">Open</p>
           </CardContent>
         </Card>
         <Card className="glass-card">
-          <CardContent className="p-4 text-center">
-            <p className="text-2xl font-bold text-red-600">{overdueTasks}</p>
+          <CardContent className="p-3 sm:p-4 text-center">
+            <p className="text-xl sm:text-2xl font-bold text-red-600">{overdueTasks}</p>
             <p className="text-xs text-gray-500">Overdue</p>
+          </CardContent>
+        </Card>
+        <Card className="glass-card">
+          <CardContent className="p-3 sm:p-4 text-center">
+            <p className="text-xl sm:text-2xl font-bold text-emerald-600">{completedToday}</p>
+            <p className="text-xs text-gray-500">Done Today</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="space-y-2">
+      {filteredTasks.filter((t) => t.status !== 'completed').length === 0 && (
+        <div className="text-center py-8 text-gray-400 text-sm">No open tasks</div>
+      )}
+      <div className="space-y-2 max-h-80 overflow-y-auto">
         {filteredTasks
           .filter((t) => t.status !== 'completed')
           .map((task) => {
