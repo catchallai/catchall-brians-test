@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, useNavigate } from 'react-router-dom';
@@ -55,6 +55,7 @@ import ActiveEditors from '@/components/wiki/ActiveEditors';
 import TagsEditor from '@/components/wiki/TagsEditor';
 import PageLockPanel from '@/components/wiki/PageLockPanel';
 import { useCollabEditor } from '@/components/wiki/useCollabEditor';
+import ReadingProgressBar from '@/components/wiki/ReadingProgressBar';
 
 const modules = {
   toolbar: {
@@ -92,6 +93,7 @@ export default function WikiPageEditor() {
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [scheduledPublishDate, setScheduledPublishDate] = useState('');
+  const editorScrollRef = useRef(null);
 
 
 
@@ -547,9 +549,12 @@ export default function WikiPageEditor() {
           </div>
         </div>
 
+        {/* Reading progress bar (top of editor area) */}
+        {pageId && content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} barOnly />}
+
         {/* Scrollable editor + optional right panel */}
         <div className="flex flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
+          <div ref={editorScrollRef} className="flex-1 overflow-y-auto">
             <div className="w-full px-12 pt-10 pb-24 space-y-4">
 
               {/* Parent Page Selection */}
@@ -578,6 +583,7 @@ export default function WikiPageEditor() {
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
                 {user && <span className="text-gray-500 text-xs">By {user.full_name || user.email?.split('@')[0]}</span>}
+                {content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} />}
                 <TagsEditor tags={tags} onChange={setTags} />
               </div>
 
