@@ -75,8 +75,8 @@ export default function ProjectDetail() {
 
   // Update project mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: any) => {
-      return await base44.entities.Project.update(id, data);
+    mutationFn: async (params) => {
+      return await base44.entities.Project.update(params.id, params.data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
@@ -86,12 +86,12 @@ export default function ProjectDetail() {
 
   // Create/update task mutation
   const taskMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (taskData) => {
       if (editingTask?.id) {
-        return await base44.entities.Task.update(editingTask.id, data);
+        return await base44.entities.Task.update(editingTask.id, taskData);
       }
       return await base44.entities.Task.create({
-        ...data,
+        ...taskData,
         project_id: projectId,
       });
     },
