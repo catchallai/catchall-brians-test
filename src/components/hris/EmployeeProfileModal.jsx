@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,11 +102,13 @@ export default function EmployeeProfileModal({ employee, open, onOpenChange }) {
 
           {/* Tabs */}
           <Tabs defaultValue="general" className="w-full">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="talent">Talent & Learning</TabsTrigger>
-            <TabsTrigger value="projects">Projects & Sales</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance</TabsTrigger>
+            <TabsList className="grid grid-cols-5 w-full">
+              <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="talent">Talent & Learning</TabsTrigger>
+              <TabsTrigger value="projects">Projects & Sales</TabsTrigger>
+              <TabsTrigger value="compliance">Compliance</TabsTrigger>
+            </TabsList>
 
             {/* General Tab */}
             <TabsContent value="general" className="space-y-4">
