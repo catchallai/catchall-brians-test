@@ -518,7 +518,7 @@ export default function WikiPageEditor() {
         {/* Scrollable editor + optional right panel */}
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-3xl mx-auto px-12 pt-10 pb-24 space-y-4">
+            <div className="w-full px-12 pt-10 pb-24 space-y-4">
 
               {/* Parent Page Selection */}
               {allPages.length > 0 && (
