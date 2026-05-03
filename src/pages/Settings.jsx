@@ -42,21 +42,42 @@ import AIToggleSettings from '@/components/settings/AIToggleSettings';
 import HubSpotSync from '@/components/settings/HubSpotSync';
 import TrackingSettings from '@/components/settings/TrackingSettings';
 
-const SETTINGS_TABS = [
-  'profile',
-  'notifications',
-  'appearance',
-  'preferences',
-  'features',
-  'autosync',
-  'integrations',
-  'tracking',
-  'rbac',
-  'users',
-  'data',
-  'ai',
+const SETTINGS_SECTIONS = [
+  {
+    group: 'Account',
+    tabs: [
+      { id: 'profile', label: 'Profile', icon: User },
+      { id: 'notifications', label: 'Notifications', icon: Bell },
+    ],
+  },
+  {
+    group: 'Appearance & Behavior',
+    tabs: [
+      { id: 'appearance', label: 'Appearance', icon: Palette },
+      { id: 'preferences', label: 'Preferences', icon: Zap },
+    ],
+  },
+  {
+    group: 'Platform',
+    tabs: [
+      { id: 'features', label: 'Features', icon: ToggleRight },
+      { id: 'integrations', label: 'Integrations', icon: Globe },
+      { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
+    ],
+  },
+  {
+    group: 'Administration',
+    tabs: [
+      { id: 'tracking', label: 'Tracking', icon: Activity },
+      { id: 'rbac', label: 'RBAC', icon: Lock },
+      { id: 'users', label: 'Team Users', icon: User },
+      { id: 'data', label: 'Data Management', icon: Database },
+      { id: 'ai', label: 'AI Settings', icon: Zap },
+    ],
+  },
 ];
 
+const SETTINGS_TABS = SETTINGS_SECTIONS.flatMap(s => s.tabs.map(t => t.id));
 const getValidSettingsTab = (tab) => (SETTINGS_TABS.includes(tab) ? tab : 'profile');
 
 const buildProfileUpdatePayload = (profile) => ({
@@ -185,56 +206,30 @@ export default function Settings() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="glass-card flex-wrap h-auto gap-1">
-          <TabsTrigger value="profile" className="gap-2">
-            <User className="w-4 h-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="w-4 h-4" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="appearance" className="gap-2">
-            <Palette className="w-4 h-4" />
-            Appearance
-          </TabsTrigger>
-          <TabsTrigger value="preferences" className="gap-2">
-            <Zap className="w-4 h-4" />
-            Preferences
-          </TabsTrigger>
-          <TabsTrigger value="features" className="gap-2">
-            <ToggleRight className="w-4 h-4" />
-            Features
-          </TabsTrigger>
-          <TabsTrigger value="autosync" className="gap-2">
-            <RefreshCw className="w-4 h-4" />
-            Auto-Sync
-          </TabsTrigger>
-          <TabsTrigger value="integrations" className="gap-2">
-            <Globe className="w-4 h-4" />
-            Integrations
-          </TabsTrigger>
-          <TabsTrigger value="tracking" className="gap-2">
-            <Activity className="w-4 h-4" />
-            Tracking
-          </TabsTrigger>
-          <TabsTrigger value="rbac" className="gap-2">
-            <Lock className="w-4 h-4" />
-            RBAC
-          </TabsTrigger>
-          <TabsTrigger value="users" className="gap-2">
-            <User className="w-4 h-4" />
-            Team Users
-          </TabsTrigger>
-          <TabsTrigger value="data" className="gap-2">
-            <Database className="w-4 h-4" />
-            Data Management
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="gap-2">
-            <Zap className="w-4 h-4" />
-            AI Settings
-          </TabsTrigger>
-        </TabsList>
+        <div className="space-y-4">
+          {SETTINGS_SECTIONS.map(section => (
+            <div key={section.group} className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-3">
+                {section.group}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                {section.tabs.map(tab => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="flex flex-col items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all"
+                    >
+                      <IconComponent className="w-5 h-5" />
+                      <span className="text-xs text-center">{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
