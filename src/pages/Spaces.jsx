@@ -237,65 +237,53 @@ export default function Spaces() {
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-2xl">
-              {/* Editor Toolbar */}
-              <div className="flex items-center gap-1 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
-                <button className="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-                  <FileText className="w-4 h-4" />
-                </button>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Write</span>
-                <span className="text-sm text-gray-400 ml-2">Tt Normal text</span>
-                <div className="ml-auto flex items-center gap-1">
-                  {/* Toolbar buttons would go here */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                {spaces.find((s) => s.id === selectedSpace)?.name || 'Space'}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {filteredPages.length} pages in this space
+              </p>
+
+              {filteredPages.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">No pages yet. Create your first page to get started.</p>
+                  <Button
+                    onClick={() => {
+                      setEditingSpace(null);
+                      setShowModal(true);
+                    }}
+                    className="mt-4 bg-violet-600 hover:bg-violet-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Page
+                  </Button>
                 </div>
-              </div>
-
-              {/* Title */}
-              <Input
-                placeholder="Give this page a title"
-                className="text-2xl font-semibold border-0 p-0 focus-visible:ring-0 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-600 h-auto mb-4"
-              />
-
-              {/* Meta info */}
-              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
-                <span>By {base44?.auth?.me?.()?.full_name || 'Me'}</span>
-                <span>•</span>
-                <span>Hardy Page Status</span>
-                <span>•</span>
-                <span>Classification: Error Retrieving Data</span>
-              </div>
-
-              {/* Editor placeholder */}
-              <p className="text-sm text-gray-500 dark:text-gray-400">Press space to Ask Rovo or / to insert elements</p>
-
-              {/* Templates footer */}
-              <div className="mt-12 flex items-center gap-2 flex-wrap">
-                <Button variant="outline" size="sm" className="text-xs">
-                  <FileText className="w-3 h-3 mr-1" />
-                  Synerjkai Project Te...
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  Meeting notes
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  Project plan
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  All templates
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  Table
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  Info panel
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  Table of contents
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  More elements
-                </Button>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredPages.map((page) => (
+                    <button
+                      key={page.id}
+                      onClick={() =>
+                        navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${selectedSpace}&pageId=${page.id}`)
+                      }
+                      className="w-full flex items-center gap-2 p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    >
+                      <FileText className="w-4 h-4 text-gray-400 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {page.title || 'Untitled'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(page.created_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
