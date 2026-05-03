@@ -10,6 +10,8 @@
   align-items: center;
   gap: 2px;
   overflow-x: auto;
+  position: relative;
+  z-index: 10;
 }
 
 .ql-toolbar.ql-snow {
@@ -259,13 +261,15 @@
 .ql-picker-options {
   position: absolute;
   display: none;
-  z-index: 100;
+  z-index: 9999;
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: 6px;
   margin-top: 4px;
   min-width: 150px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  top: 100%;
+  left: 0;
 }
 
 .ql-picker.ql-expanded .ql-picker-options {
