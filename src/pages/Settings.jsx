@@ -39,7 +39,6 @@ import RolePermissionsManager from '@/components/settings/RolePermissionsManager
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
-import IntegrationsManager from '@/components/settings/IntegrationsManager';
 import TrackingSettings from '@/components/settings/TrackingSettings';
 
 const SETTINGS_SECTIONS = [
@@ -61,7 +60,6 @@ const SETTINGS_SECTIONS = [
     group: 'Platform',
     tabs: [
       { id: 'features', label: 'Features', icon: ToggleRight },
-      { id: 'integrations', label: 'Integrations', icon: Globe },
       { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
     ],
   },
@@ -539,11 +537,6 @@ export default function Settings() {
         {/* Auto-Sync Tab */}
         <TabsContent value="autosync">
           <AutoSyncSettings />
-        </TabsContent>
-
-        {/* Integrations Tab */}
-        <TabsContent value="integrations">
-          <IntegrationsManager />
         </TabsContent>
 
         {/* Tracking Tab */}

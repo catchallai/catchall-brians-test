@@ -261,7 +261,7 @@ const navigation = [
   { name: 'divider', label: 'Support', collapsible: true },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
-  { name: 'Integrations', icon: Globe, page: 'Settings?tab=integrations' },
+  { name: 'Integrations', icon: Globe, page: 'Integrations' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Platform Map', icon: Network, page: 'PlatformWorkflowMap' },
