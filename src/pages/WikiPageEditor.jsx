@@ -557,10 +557,18 @@ export default function WikiPageEditor() {
         {/* Reading progress bar (top of editor area) */}
         {pageId && content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} barOnly />}
 
-        {/* Scrollable editor + optional right panel */}
+        {/* Scrollable editor + optional left TOC + right panel */}
         <div className="flex flex-1 overflow-hidden">
-          <div ref={editorScrollRef} className="flex-1 overflow-y-auto flex justify-center">
-            <div className="w-full max-w-4xl px-12 pt-10 pb-24 space-y-4">
+          {/* Left: Table of Contents */}
+          {showRightSidebar && pageId && (
+            <div className="w-56 shrink-0 border-r border-gray-100 dark:border-gray-800 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900/50">
+              <TableOfContents content={content} scrollRef={editorScrollRef} />
+            </div>
+          )}
+
+          {/* Center: Editor */}
+          <div ref={editorScrollRef} className="flex-1 overflow-y-auto flex justify-center bg-white dark:bg-gray-950">
+            <div className="w-full max-w-3xl px-16 pt-8 pb-24 space-y-4">
 
               {/* Parent Page Selection */}
               {allPages.length > 0 && (
@@ -582,12 +590,12 @@ export default function WikiPageEditor() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Give this page a title"
-                className="text-4xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 h-auto py-1"
+                className="text-3xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-600 h-auto py-2"
               />
 
               {/* Meta row */}
-               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
-                 {user && <span className="text-gray-500 text-xs">By {user.full_name || user.email?.split('@')[0]}</span>}
+               <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 pb-3">
+                 {user && <span>By {user.full_name || user.email?.split('@')[0]}</span>}
                  <ClassificationBadge classification={classification} onChange={setClassification} editable={!isLockedByOther} />
                  {content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} />}
                  <TagsEditor tags={tags} onChange={setTags} />
@@ -633,9 +641,6 @@ export default function WikiPageEditor() {
           {/* Right panel */}
            {showRightSidebar && pageId && (
              <div className="w-72 shrink-0 border-l border-gray-100 dark:border-gray-800 overflow-y-auto p-5 space-y-6">
-               <div>
-                 <TableOfContents content={content} scrollRef={editorScrollRef} />
-               </div>
                <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
                  <PageLockPanel page={page} pageId={pageId} user={user} />
                </div>
