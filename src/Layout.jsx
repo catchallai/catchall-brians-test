@@ -259,11 +259,12 @@ const navigation = [
   { name: 'divider', label: 'Executive', collapsible: true },
   { name: 'Executive Dashboard', icon: Award, page: 'ExecutiveDashboard' },
   { name: 'divider', label: 'Support', collapsible: true },
+  { name: 'Settings', icon: Settings, page: 'Settings' },
+  { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
+  { name: 'Integrations', icon: Globe, page: 'Settings?tab=integrations' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Platform Map', icon: Network, page: 'PlatformWorkflowMap' },
-  { name: 'Settings', icon: Settings, page: 'Settings' },
-  { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
 ];
 
