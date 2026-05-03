@@ -86,6 +86,14 @@ const INTEGRATIONS = [
     category: 'Social',
   },
   {
+    id: 'meta',
+    name: 'Meta',
+    description: 'Connect Meta (Facebook) business assets',
+    icon: 'https://www.meta.com/favicon.ico',
+    status: 'available',
+    category: 'Social',
+  },
+  {
     id: 'mailchimp',
     name: 'Mailchimp',
     description: 'Manage email campaigns and subscribers',
