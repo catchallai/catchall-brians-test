@@ -19,6 +19,7 @@ import SEOHistoricalTracker from '@/components/seo/SEOHistoricalTracker';
 import SEOAnomalyDetector from '@/components/seo/SEOAnomalyDetector';
 import LiveDataIntegration from '@/components/seo/LiveDataIntegration';
 import { toast } from 'sonner';
+import TourGuide from '@/components/tour/TourGuide';
 
 export default function SEODashboard() {
   const [showModal, setShowModal] = useState(false);
@@ -324,7 +325,7 @@ For each issue, provide:
     <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-h-screen">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+        <div data-tour="seo-header">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             SEO Dashboard
           </h1>
@@ -332,13 +333,16 @@ For each issue, provide:
             Monitor and improve your search engine rankings
           </p>
         </div>
-        <Button
-          onClick={() => setShowModal(true)}
-          className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
-        >
-          <Plus className="w-4 h-4" />
-          Add Website
-        </Button>
+        <div className="flex gap-2 items-center w-full sm:w-auto">
+          <TourGuide tourName="seo" />
+          <Button
+            onClick={() => setShowModal(true)}
+            className="gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg shadow-emerald-500/20 flex-1 sm:flex-initial"
+          >
+            <Plus className="w-4 h-4" />
+            Add Website
+          </Button>
+        </div>
       </div>
 
       {websites.length === 0 ? (
@@ -352,7 +356,9 @@ For each issue, provide:
       ) : (
         <div className="space-y-6">
           {/* Overview Stats */}
-          <SEOOverviewStats websites={websites} keywords={keywords} backlinks={backlinks} />
+          <div data-tour="seo-score">
+            <SEOOverviewStats websites={websites} keywords={keywords} backlinks={backlinks} />
+          </div>
 
           {/* Quick Actions */}
           <QuickActionsGrid keywords={keywords} backlinks={backlinks} />
@@ -376,7 +382,7 @@ For each issue, provide:
 
             <TabsContent value="websites" className="space-y-6 mt-0">
               {/* Website Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div data-tour="seo-keywords" className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 {websites.map((website) => (
                   <WebsiteCard
                     key={website.id}
@@ -393,7 +399,7 @@ For each issue, provide:
 
               {/* Technical Audit Section */}
               {websites.length > 0 && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div data-tour="seo-backlinks" className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                   {websites.slice(0, 2).map((website) => (
                     <TechnicalAuditCard
                       key={website.id}

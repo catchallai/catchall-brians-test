@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import TourGuide from '@/components/tour/TourGuide';
 import {
   Table,
   TableBody,
@@ -267,7 +268,7 @@ export default function Deals() {
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+          <div data-tour="crm-header">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               Sales Pipeline
             </h1>
@@ -275,7 +276,8 @@ export default function Deals() {
               Manage active deals through your sales process
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <TourGuide tourName="crm" />
             <Button
               onClick={() => setShowDealModal(true)}
               className="gap-2 bg-violet-600 hover:bg-violet-700"
@@ -302,7 +304,7 @@ export default function Deals() {
             />
           </div>
           <Select value={filterStage} onValueChange={setFilterStage}>
-            <SelectTrigger className="w-full sm:w-40">
+            <SelectTrigger className="w-full sm:w-40" data-tour="crm-stages">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -410,12 +412,13 @@ export default function Deals() {
           {/* Kanban View */}
           <TabsContent value="kanban" className="mt-6">
             {/* Funnel & Distribution */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div data-tour="crm-metrics" className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <SalesFunnel deals={filteredDeals} />
               <StageDistribution deals={filteredDeals} />
             </div>
 
             {/* Kanban Board */}
+            <div data-tour="crm-kanban">
             <DealKanbanBoard
               deals={filteredDeals}
               stages={defaultPipeline?.stages || DEFAULT_STAGES}
@@ -427,6 +430,7 @@ export default function Deals() {
               onEditDeal={handleEditDeal}
               getContact={getContact}
             />
+            </div>
           </TabsContent>
 
           {/* Forecast View */}

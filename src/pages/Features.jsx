@@ -41,6 +41,7 @@ import {
   Package,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import TourGuide from '@/components/tour/TourGuide';
 
 // Feature definitions organized by tier and category
 const FEATURES = {
@@ -485,15 +486,18 @@ export default function Features() {
   return (
     <div className="p-6 lg:p-8 space-y-6 min-h-screen max-w-7xl mx-auto">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Feature Management</h1>
+      <div data-tour="features-header" className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Feature Management</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">
           {enabledCount} of {totalCount} features enabled
         </p>
+        </div>
+        <TourGuide tourName="features" />
       </div>
 
       {/* Quick Presets */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div data-tour="features-tiers" className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {['starter', 'growth', 'enterprise'].map((tier) => {
           const TierIcon = TIER_ICONS[tier];
           return (
@@ -595,6 +599,7 @@ export default function Features() {
                             </div>
                           </div>
                           <Switch
+                            data-tour="features-toggle"
                             checked={enabled}
                             onCheckedChange={() => toggleFeature(key)}
                             disabled={updateMutation.isPending}
