@@ -1,0 +1,37 @@
+{
+  "name": "ProjectDataRoom",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Project name for display"
+    },
+    "name": {
+      "type": "string",
+      "description": "Data room name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Data room description"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether data room is active"
+    },
+    "auto_sync_approved_folder": {
+      "type": "boolean",
+      "default": true,
+      "description": "Auto-sync files from Approved folder"
+    },
+    "folder_id": {
+      "type": "string",
+      "description": "Source folder ID (typically Approved folder)"
+    }
+  },
+  "required": ["project_id", "name"]
+}

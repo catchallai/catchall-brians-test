@@ -1,0 +1,53 @@
+{
+  "name": "DataRoomAccess",
+  "type": "object",
+  "properties": {
+    "data_room_id": {
+      "type": "string",
+      "description": "Associated data room ID"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "External contact ID who has access"
+    },
+    "contact_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Contact email address"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Contact full name"
+    },
+    "access_token": {
+      "type": "string",
+      "description": "Unique secure token for portal access"
+    },
+    "access_level": {
+      "type": "string",
+      "enum": ["view", "download", "comment"],
+      "default": "view",
+      "description": "What actions client can perform"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When access expires"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether access is currently active"
+    },
+    "last_accessed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time client accessed portal"
+    }
+  },
+  "required": ["data_room_id", "contact_email"]
+}

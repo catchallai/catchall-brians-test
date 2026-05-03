@@ -47,6 +47,7 @@ import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
 import SocialCalendar from './pages/SocialCalendar';
 import Integrations from './pages/Integrations';
 import Features from './pages/Features';
+import DataRoomPortal from './pages/DataRoomPortal';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -64,6 +65,7 @@ const PUBLIC_ROUTES = [
   '/PublicLandingPage',
   '/PublicLandingPageWrapper',
   '/PublicLegalDocumentSigner',
+  '/DataRoomPortal',
   '/portal',
 ];
 // Precomputed lookup set so isPublicRoute is O(1) and doesn't lowercase per call.
@@ -186,6 +188,7 @@ const AuthenticatedApp = () => {
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
       <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
+      <Route path="/DataRoomPortal" element={<DataRoomPortal />} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
