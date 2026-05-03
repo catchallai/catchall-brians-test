@@ -54,6 +54,7 @@ import CommentsPanel from '@/components/wiki/CommentsPanel';
 import ActiveEditors from '@/components/wiki/ActiveEditors';
 import TagsEditor from '@/components/wiki/TagsEditor';
 import PageLockPanel from '@/components/wiki/PageLockPanel';
+import { useCollabEditor } from '@/components/wiki/useCollabEditor';
 
 const modules = {
   toolbar: {
@@ -91,6 +92,8 @@ export default function WikiPageEditor() {
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [scheduledPublishDate, setScheduledPublishDate] = useState('');
+
+
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -300,6 +303,13 @@ export default function WikiPageEditor() {
   const isLocked = page?.is_locked;
   const isLockedByOther = isLocked && page?.locked_by !== user?.email && user?.role !== 'admin';
 
+  // Real-time collaborative editing (placed after isLockedByOther so the callback can reference it)
+  const { quillRef, isConnected, connectedUsers } = useCollabEditor(
+    pageId,
+    user,
+    (html) => { if (!isLockedByOther) setContent(html); }
+  );
+
   const handleSave = () => {
     if (isLockedByOther) return;
     saveMutation.mutate({
@@ -435,6 +445,28 @@ export default function WikiPageEditor() {
           <div className="flex items-center gap-1.5">
             {pageId && page && <FreshnessIndicator page={page} />}
             {pageId && <ActiveEditors editors={activeEditors} />}
+            {pageId && (
+              <div className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-gray-300'}`} title={isConnected ? 'Live sync active' : 'Connecting…'} />
+                {connectedUsers.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    {connectedUsers.slice(0, 3).map((u) => (
+                      <span
+                        key={u.email}
+                        title={u.name}
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                        style={{ backgroundColor: u.color }}
+                      >
+                        {u.name?.[0]?.toUpperCase()}
+                      </span>
+                    ))}
+                    {connectedUsers.length > 3 && (
+                      <span className="text-xs text-gray-400">+{connectedUsers.length - 3}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             {isLocked && (
               <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${isLockedByOther ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
                 <Lock className="w-3 h-3" />
@@ -572,6 +604,7 @@ export default function WikiPageEditor() {
               {/* Editor */}
               <div className={isLockedByOther ? 'opacity-60 pointer-events-none' : ''}>
                 <ReactQuill
+                  ref={quillRef}
                   theme="snow"
                   value={content}
                   onChange={(value) => { if (!isLockedByOther) { setContent(value); setIsEditing(true); } }}
