@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Play, Pause, Mail, Phone, Target } from 'lucide-react';
+import { Plus, Play, Pause, Mail, Phone, Target, Edit } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import SequenceModal from '@/components/modals/SequenceModal';
 
@@ -83,15 +83,27 @@ export default function SalesSequences() {
                     <CardTitle className="text-lg">{seq.name}</CardTitle>
                     <p className="text-sm text-gray-500 mt-1">{seq.description}</p>
                   </div>
-                  <Button
-                    size="sm"
-                    variant={seq.is_active ? 'default' : 'outline'}
-                    onClick={() =>
-                      toggleActiveMutation.mutate({ id: seq.id, is_active: !seq.is_active })
-                    }
-                  >
-                    {seq.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setEditingSequence(seq);
+                        setShowModal(true);
+                      }}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={seq.is_active ? 'default' : 'outline'}
+                      onClick={() =>
+                        toggleActiveMutation.mutate({ id: seq.id, is_active: !seq.is_active })
+                      }
+                    >
+                      {seq.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
