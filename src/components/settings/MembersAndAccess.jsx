@@ -1,23 +1,23 @@
 import React, { useMemo, useState, useEffect, Fragment } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { DEPARTMENTS } from '@/lib/departmentPermissions';
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Data                                                                       */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-const ROLES = [
-  { id: 'admin',  label: 'Admin',  desc: 'Full access to all sections and actions' },
-  { id: 'editor', label: 'Editor', desc: 'Can create, edit content; limited delete access' },
-  { id: 'viewer', label: 'Viewer', desc: 'Read-only access to most sections; can export' },
-  { id: 'user',   label: 'User',   desc: 'Very limited access; personal dashboard and settings only' },
-];
-
-const ROLE_TONE = {
-  admin:  { dot: 'bg-violet-500', text: 'text-violet-700', bg: 'bg-violet-50',  border: 'border-violet-200',  ring: 'ring-violet-100' },
-  editor: { dot: 'bg-blue-500',   text: 'text-blue-700',   bg: 'bg-blue-50',    border: 'border-blue-200',    ring: 'ring-blue-100'   },
-  viewer: { dot: 'bg-cyan-500',   text: 'text-cyan-700',   bg: 'bg-cyan-50',    border: 'border-cyan-200',    ring: 'ring-cyan-100'   },
-  user:   { dot: 'bg-slate-400',  text: 'text-slate-600',  bg: 'bg-slate-50',   border: 'border-slate-200',   ring: 'ring-slate-100'  },
+const DEPT_TONE = {
+  'Business Dev':      { dot: 'bg-blue-500',    text: 'text-blue-700',    bg: 'bg-blue-50',      border: 'border-blue-200'      },
+  'Sales':             { dot: 'bg-green-500',   text: 'text-green-700',   bg: 'bg-green-50',     border: 'border-green-200'     },
+  'Marketing':         { dot: 'bg-pink-500',    text: 'text-pink-700',    bg: 'bg-pink-50',      border: 'border-pink-200'      },
+  'Human Resources':   { dot: 'bg-purple-500',  text: 'text-purple-700',  bg: 'bg-purple-50',    border: 'border-purple-200'    },
+  'Legal':             { dot: 'bg-amber-500',   text: 'text-amber-700',   bg: 'bg-amber-50',     border: 'border-amber-200'     },
+  'Finance':           { dot: 'bg-yellow-500',  text: 'text-yellow-700',  bg: 'bg-yellow-50',    border: 'border-yellow-200'    },
+  'Engineering':       { dot: 'bg-slate-500',   text: 'text-slate-700',   bg: 'bg-slate-50',     border: 'border-slate-200'     },
+  'Information Technology': { dot: 'bg-cyan-500', text: 'text-cyan-700', bg: 'bg-cyan-50', border: 'border-cyan-200' },
+  'Admin':             { dot: 'bg-violet-500',  text: 'text-violet-700',  bg: 'bg-violet-50',    border: 'border-violet-200'    },
+  'SuperAdmin':        { dot: 'bg-red-500',     text: 'text-red-700',     bg: 'bg-red-50',       border: 'border-red-200'       },
 };
 
 const ACTIONS = [
@@ -63,33 +63,25 @@ const ALL_SECTIONS = SECTION_GROUPS.flatMap(g =>
 
 function defaultPerms() {
   const perms = {};
-  for (const r of ROLES) {
-    perms[r.id] = {};
+  // Initialize all departments
+  for (const d of DEPARTMENTS) {
+    perms[d] = {};
     for (const s of ALL_SECTIONS) {
-      perms[r.id][s.id] = { view: false, create: false, edit: false, delete: false, export: false };
+      perms[d][s.id] = { view: false, create: false, edit: false, delete: false, export: false };
     }
   }
+  // SuperAdmin: full access to all sections
   for (const s of ALL_SECTIONS) {
-    perms.admin[s.id] = { view: true, create: true, edit: true, delete: true, export: true };
+    perms['SuperAdmin'][s.id] = { view: true, create: true, edit: true, delete: true, export: true };
   }
+  // Admin: full access except system
   for (const s of ALL_SECTIONS) {
-    if (s.group === 'system') {
-      perms.editor[s.id] = { view: true, create: false, edit: false, delete: false, export: false };
+    if (s.group !== 'system') {
+      perms['Admin'][s.id] = { view: true, create: true, edit: true, delete: true, export: true };
     } else {
-      perms.editor[s.id] = { view: true, create: true, edit: true, delete: false, export: true };
+      perms['Admin'][s.id] = { view: true, create: false, edit: false, delete: false, export: false };
     }
   }
-  ['contacts', 'deals', 'contentStudio', 'hashtags'].forEach(id => { perms.editor[id].delete = true; });
-  for (const s of ALL_SECTIONS) {
-    if (s.group === 'system' && s.id !== 'settings') {
-      perms.viewer[s.id] = { view: false, create: false, edit: false, delete: false, export: false };
-    } else {
-      perms.viewer[s.id] = { view: true, create: false, edit: false, delete: false, export: false };
-    }
-  }
-  ['reports', 'seoDashboard', 'dashboard'].forEach(id => { perms.viewer[id].export = true; });
-  perms.user.dashboard = { view: true, create: false, edit: false, delete: false, export: false };
-  perms.user.settings  = { view: true, create: false, edit: true,  delete: false, export: false };
   return perms;
 }
 
@@ -291,7 +283,7 @@ function MembersSection() {
         id: u.id,
         name: u.full_name || u.email.split('@')[0],
         email: u.email,
-        role: u.role || 'user',
+        department: u.department || 'Admin',
         status: u.status || 'active',
         lastActive: u.lastActive || '—',
         avatarColor: getAvatarColor(u.email),
@@ -299,10 +291,10 @@ function MembersSection() {
     },
   });
 
-  // Mutation to update user role
-  const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, role }) => {
-      await base44.entities.User.update(userId, { role });
+  // Mutation to update user department
+  const updateDeptMutation = useMutation({
+    mutationFn: async ({ userId, department }) => {
+      await base44.entities.User.update(userId, { department });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -310,8 +302,12 @@ function MembersSection() {
   });
 
   const counts = useMemo(() => {
-    const c = { total: users.length, admin: 0, editor: 0, viewer: 0, user: 0, pending: 0, active: 0 };
-    users.forEach(u => { c[u.role]++; c[u.status]++; });
+    const c = { total: users.length, pending: 0, active: 0 };
+    DEPARTMENTS.forEach(d => { c[d] = 0; });
+    users.forEach(u => { 
+      c[u.department]++; 
+      c[u.status]++;
+    });
     return c;
   }, [users]);
 
@@ -321,9 +317,10 @@ function MembersSection() {
       const q = query.toLowerCase();
       out = out.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
     }
-    if (roleFilter !== 'all') out = out.filter(u => u.role === roleFilter);
+    if (roleFilter !== 'all') out = out.filter(u => u.department === roleFilter);
     out = [...out].sort((a, b) => {
-      const r = String(a[sort.key]).localeCompare(String(b[sort.key]));
+      const sortKey = sort.key === 'role' ? 'department' : sort.key;
+      const r = String(a[sortKey]).localeCompare(String(b[sortKey]));
       return sort.dir === 'asc' ? r : -r;
     });
     return out;
@@ -339,9 +336,9 @@ function MembersSection() {
 
   const stats = [
     { label: 'Total members',   value: counts.total, hint: `${counts.active} active` },
-    { label: 'Admins',          value: counts.admin, hint: 'Full access' },
-    { label: 'Editors',         value: counts.editor, hint: 'Can create + edit' },
-    { label: 'Viewers + Users', value: counts.viewer + counts.user, hint: `${counts.pending} pending invite` },
+    { label: 'Sales',           value: counts['Sales'] || 0, hint: 'Sales team' },
+    { label: 'Marketing',       value: counts['Marketing'] || 0, hint: 'Marketing team' },
+    { label: 'Other depts',     value: counts.total - (counts['Sales'] || 0) - (counts['Marketing'] || 0), hint: `${counts.pending} pending` },
   ];
 
   return (
@@ -380,16 +377,16 @@ function MembersSection() {
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search by name or email"
             className="w-full h-8 pl-8 pr-3 text-[13px] bg-slate-50 border border-slate-200 rounded-md outline-none focus:bg-white focus:border-slate-400"/>
         </div>
-        <div className="flex gap-1 ml-1">
-          {[{ id: 'all', label: 'All' }, ...ROLES].map(r => {
-            const active = roleFilter === r.id;
+        <div className="flex gap-1 ml-1 flex-wrap">
+          {[{ id: 'all', label: 'All' }, ...DEPARTMENTS.map(d => ({ id: d, label: d }))].map(d => {
+            const active = roleFilter === d.id;
             return (
-              <button key={r.id} onClick={() => setRoleFilter(r.id)}
+              <button key={d.id} onClick={() => setRoleFilter(d.id)}
                 className={`h-7 px-2.5 text-[12.5px] font-medium rounded-md inline-flex items-center gap-1.5 border transition-colors
                   ${active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
-                {r.id !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${ROLE_TONE[r.id].dot}`}/>}
-                {r.label}
-                {r.id !== 'all' && <span className="opacity-60 tabular-nums">{counts[r.id]}</span>}
+                {d.id !== 'all' && <span className={`w-1.5 h-1.5 rounded-full ${DEPT_TONE[d.id]?.dot}`}/>}
+                {d.label}
+                {d.id !== 'all' && <span className="opacity-60 tabular-nums">{counts[d.id] || 0}</span>}
               </button>
             );
           })}
@@ -413,7 +410,7 @@ function MembersSection() {
           </div>
           {[
             { k: 'name', label: 'Member' },
-            { k: 'role', label: 'Role' },
+            { k: 'role', label: 'Department' },
             { k: 'status', label: 'Status' },
             { k: 'lastActive', label: 'Last active' },
           ].map(col => (
@@ -427,30 +424,30 @@ function MembersSection() {
         </div>
 
         {filtered.map(u => {
-          const tone = ROLE_TONE[u.role];
-          const stat = STATUS_TONE[u.status];
-          const isSel = selected.has(u.id);
-          return (
-            <div key={u.id} className={`grid grid-cols-[36px_2.4fr_1fr_1fr_1.2fr_80px] items-center px-3.5 py-2.5 min-h-[52px] border-t border-slate-100
-                                        ${isSel ? 'bg-slate-50' : 'bg-white hover:bg-slate-50/60'}`}>
-              <div>
-                <input type="checkbox" checked={isSel} onChange={() => toggleSel(u.id)} className="accent-slate-900"/>
-              </div>
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Avatar name={u.name} color={u.avatarColor} size="w-8 h-8 text-[12px]"/>
-                <div className="min-w-0">
-                  <div className="text-[13.5px] font-medium text-slate-900 truncate">{u.name}</div>
-                  <div className="text-[12.5px] text-slate-500 truncate">{u.email}</div>
-                </div>
-              </div>
-              <div>
-                <select value={u.role} onChange={(e) => updateRoleMutation.mutate({ userId: u.id, role: e.target.value })}
-                  className={`inline-flex items-center gap-1.5 h-[22px] px-2 rounded-md border text-[12px] font-medium appearance-none cursor-pointer
-                              ${tone.bg} ${tone.text} ${tone.border} bg-no-repeat pr-6 bg-right`}
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23${tone.text.split('-')[1]}' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")` }}>
-                  {ROLES.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
-                </select>
-              </div>
+           const tone = DEPT_TONE[u.department];
+           const stat = STATUS_TONE[u.status];
+           const isSel = selected.has(u.id);
+           return (
+             <div key={u.id} className={`grid grid-cols-[36px_2.4fr_1fr_1fr_1.2fr_80px] items-center px-3.5 py-2.5 min-h-[52px] border-t border-slate-100
+                                         ${isSel ? 'bg-slate-50' : 'bg-white hover:bg-slate-50/60'}`}>
+               <div>
+                 <input type="checkbox" checked={isSel} onChange={() => toggleSel(u.id)} className="accent-slate-900"/>
+               </div>
+               <div className="flex items-center gap-2.5 min-w-0">
+                 <Avatar name={u.name} color={u.avatarColor} size="w-8 h-8 text-[12px]"/>
+                 <div className="min-w-0">
+                   <div className="text-[13.5px] font-medium text-slate-900 truncate">{u.name}</div>
+                   <div className="text-[12.5px] text-slate-500 truncate">{u.email}</div>
+                 </div>
+               </div>
+               <div>
+                 <select value={u.department} onChange={(e) => updateDeptMutation.mutate({ userId: u.id, department: e.target.value })}
+                   className={`inline-flex items-center gap-1.5 h-[22px] px-2 rounded-md border text-[12px] font-medium appearance-none cursor-pointer
+                               ${tone?.bg} ${tone?.text} ${tone?.border} bg-no-repeat pr-6 bg-right`}
+                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='${tone?.text.split('-')[0] || 'currentColor'}' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")` }}>
+                   {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                 </select>
+               </div>
               <div className={`flex items-center gap-1.5 text-[13px] capitalize ${stat.text}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${stat.dot}`}/>
                 {u.status}
@@ -484,23 +481,23 @@ function MembersSection() {
 function RBACMatrix({ perms, setPerms }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(() => Object.fromEntries(SECTION_GROUPS.map(g => [g.id, true])));
-  const [activeRole, setActiveRole] = useState('admin');
+  const [activeDept, setActiveDept] = useState(DEPARTMENTS[0]);
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(true);
   const filteredGroups = useFilteredGroups(query);
-  const visibleRoles = showAll ? ROLES : ROLES.filter(r => r.id === activeRole);
+  const visibleDepts = showAll ? DEPARTMENTS : DEPARTMENTS.filter(d => d === activeDept);
 
   // Mutation to save permissions
   const savePermsMutation = useMutation({
     mutationFn: async (permsData) => {
       const entries = [];
-      for (const [role, sections] of Object.entries(permsData)) {
+      for (const [dept, sections] of Object.entries(permsData)) {
         for (const [sectionId, actions] of Object.entries(sections)) {
-          entries.push({ role, section_id: sectionId, actions });
+          entries.push({ department: dept, section_id: sectionId, actions });
         }
       }
       for (const entry of entries) {
-        const existing = await base44.entities.RolePermission.filter({ role: entry.role, section_id: entry.section_id });
+        const existing = await base44.entities.RolePermission.filter({ department: entry.department, section_id: entry.section_id });
         if (existing.length > 0) {
           await base44.entities.RolePermission.update(existing[0].id, entry);
         } else {
@@ -513,27 +510,27 @@ function RBACMatrix({ perms, setPerms }) {
     },
   });
 
-  const toggleCell = (role, sectionId, action) => {
+  const toggleCell = (dept, sectionId, action) => {
     setPerms(prev => {
       const next = structuredClone(prev);
-      const cur = next[role][sectionId][action];
-      next[role][sectionId][action] = !cur;
-      if (!cur && action !== 'view') next[role][sectionId].view = true;
-      if (cur && action === 'view') ACTIONS.forEach(a => { next[role][sectionId][a.id] = false; });
+      const cur = next[dept][sectionId][action];
+      next[dept][sectionId][action] = !cur;
+      if (!cur && action !== 'view') next[dept][sectionId].view = true;
+      if (cur && action === 'view') ACTIONS.forEach(a => { next[dept][sectionId][a.id] = false; });
       savePermsMutation.mutate(next);
       return next;
     });
   };
-  const setGroupAll = (role, group, value) => {
+  const setGroupAll = (dept, group, value) => {
     setPerms(prev => {
       const next = structuredClone(prev);
-      group.sections.forEach(s => ACTIONS.forEach(a => { next[role][s.id][a.id] = value; }));
+      group.sections.forEach(s => ACTIONS.forEach(a => { next[dept][s.id][a.id] = value; }));
       savePermsMutation.mutate(next);
       return next;
     });
   };
 
-  const cols = visibleRoles.length;
+  const cols = visibleDepts.length;
   const gridStyle = { gridTemplateColumns: `minmax(220px, 1.5fr) repeat(${cols}, 1fr)` };
 
   return (
@@ -557,15 +554,15 @@ function RBACMatrix({ perms, setPerms }) {
           </button>
         </div>
         {!showAll && (
-          <div className="flex gap-1">
-            {ROLES.map(r => {
-              const t = ROLE_TONE[r.id];
-              const active = activeRole === r.id;
+          <div className="flex gap-1 flex-wrap">
+            {DEPARTMENTS.map(d => {
+              const t = DEPT_TONE[d];
+              const active = activeDept === d;
               return (
-                <button key={r.id} onClick={() => setActiveRole(r.id)}
+                <button key={d} onClick={() => setActiveDept(d)}
                   className={`h-8 px-3 text-[13px] font-medium rounded-md inline-flex items-center gap-1.5 border
                               ${active ? `${t.bg} ${t.text} ${t.border}` : 'bg-white text-slate-600 border-slate-200'}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${t.dot}`}/>{r.label}
+                  <span className={`w-1.5 h-1.5 rounded-full ${t.dot}`}/>{d}
                 </button>
               );
             })}
@@ -578,11 +575,11 @@ function RBACMatrix({ perms, setPerms }) {
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
         <div className="grid border-b border-slate-200 bg-slate-50 sticky top-0 z-[2]" style={gridStyle}>
           <div className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Section</div>
-          {visibleRoles.map(r => (
-            <div key={r.id} className="px-3 py-2.5 border-l border-slate-100">
+          {visibleDepts.map(d => (
+            <div key={d} className="px-3 py-2.5 border-l border-slate-100">
               <div className="flex items-center gap-1.5 mb-1">
-                <span className={`w-1.5 h-1.5 rounded-full ${ROLE_TONE[r.id].dot}`}/>
-                <span className="text-[13px] font-semibold text-slate-900">{r.label}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${DEPT_TONE[d].dot}`}/>
+                <span className="text-[13px] font-semibold text-slate-900">{d}</span>
               </div>
               <div className="grid" style={{ gridTemplateColumns: `repeat(${ACTIONS.length}, 1fr)` }}>
                 {ACTIONS.map(a => (
@@ -608,47 +605,47 @@ function RBACMatrix({ perms, setPerms }) {
                   <div className="text-[11.5px] text-slate-400">{g.desc} · {g.sections.length} sections</div>
                 </div>
               </div>
-              {visibleRoles.map(r => {
-                const cov = groupCoverage(perms, r.id, g);
-                const tone = ROLE_TONE[r.id];
-                return (
-                  <div key={r.id} className="px-3 py-2.5 border-l border-slate-100 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="flex-1 h-1 bg-slate-100 rounded overflow-hidden">
-                        <div className={`h-full transition-[width] ${tone.dot}`} style={{ width: `${cov.pct * 100}%` }}/>
-                      </div>
-                      <span className="text-[11px] text-slate-500 tabular-nums w-9 text-right">{cov.on}/{cov.total}</span>
-                    </div>
-                    <div className="flex gap-0.5">
-                      <button onClick={(e) => { e.stopPropagation(); setGroupAll(r.id, g, true); }}
-                        title={`Grant all to ${r.label}`} className="w-[22px] h-[22px] inline-flex items-center justify-center border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50">
-                        <Icon name="check" className="w-[11px] h-[11px]"/>
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); setGroupAll(r.id, g, false); }}
-                        title={`Revoke all from ${r.label}`} className="w-[22px] h-[22px] inline-flex items-center justify-center border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50">
-                        <Icon name="x" className="w-[11px] h-[11px]"/>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {visibleDepts.map(d => {
+                 const cov = groupCoverage(perms, d, g);
+                 const tone = DEPT_TONE[d];
+                 return (
+                   <div key={d} className="px-3 py-2.5 border-l border-slate-100 flex items-center justify-between gap-2">
+                     <div className="flex items-center gap-2 flex-1">
+                       <div className="flex-1 h-1 bg-slate-100 rounded overflow-hidden">
+                         <div className={`h-full transition-[width] ${tone.dot}`} style={{ width: `${cov.pct * 100}%` }}/>
+                       </div>
+                       <span className="text-[11px] text-slate-500 tabular-nums w-9 text-right">{cov.on}/{cov.total}</span>
+                     </div>
+                     <div className="flex gap-0.5">
+                       <button onClick={(e) => { e.stopPropagation(); setGroupAll(d, g, true); }}
+                         title={`Grant all to ${d}`} className="w-[22px] h-[22px] inline-flex items-center justify-center border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50">
+                         <Icon name="check" className="w-[11px] h-[11px]"/>
+                       </button>
+                       <button onClick={(e) => { e.stopPropagation(); setGroupAll(d, g, false); }}
+                         title={`Revoke all from ${d}`} className="w-[22px] h-[22px] inline-flex items-center justify-center border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50">
+                         <Icon name="x" className="w-[11px] h-[11px]"/>
+                       </button>
+                     </div>
+                   </div>
+                 );
+               })}
             </div>
 
             {open[g.id] && g.sections.map((s, si) => (
               <div key={s.id} className={`grid items-center bg-white ${si === g.sections.length - 1 ? '' : 'border-b border-slate-50'}`}
                 style={gridStyle}>
                 <div className="pl-9 pr-4 py-2 text-[13px] text-slate-900">{s.label}</div>
-                {visibleRoles.map(r => {
-                  const p = perms[r.id][s.id];
-                  const tone = ROLE_TONE[r.id];
+                {visibleDepts.map(d => {
+                  const p = perms[d][s.id];
+                  const tone = DEPT_TONE[d];
                   return (
-                    <div key={r.id} className="px-3 py-1.5 border-l border-slate-100 grid"
+                    <div key={d} className="px-3 py-1.5 border-l border-slate-100 grid"
                       style={{ gridTemplateColumns: `repeat(${ACTIONS.length}, 1fr)` }}>
                       {ACTIONS.map(a => (
                         <div key={a.id} className="flex justify-center">
                           <ActionCheck checked={!!p[a.id]} tone={tone.dot} icon={a.icon}
                             destructive={a.id === 'delete'}
-                            onChange={() => toggleCell(r.id, s.id, a.id)}/>
+                            onChange={() => toggleCell(d, s.id, a.id)}/>
                         </div>
                       ))}
                     </div>
@@ -660,17 +657,16 @@ function RBACMatrix({ perms, setPerms }) {
         ))}
       </div>
 
-      <div className="mt-3.5 p-4 bg-slate-50 border border-slate-200 rounded-[10px] grid grid-cols-4 gap-3.5 text-[12.5px] text-slate-600">
-        {ROLES.map(r => (
-          <div key={r.id} className="flex gap-2.5 items-start">
-            <span className={`w-2 h-2 rounded-full mt-1.5 ${ROLE_TONE[r.id].dot}`}/>
-            <div>
-              <div className="text-slate-900 font-semibold text-[13px]">{r.label}</div>
-              <div>{r.desc}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <div className="mt-3.5 p-4 bg-slate-50 border border-slate-200 rounded-[10px] grid grid-cols-3 gap-3.5 text-[12.5px] text-slate-600">
+         {DEPARTMENTS.map(d => (
+           <div key={d} className="flex gap-2.5 items-start">
+             <span className={`w-2 h-2 rounded-full mt-1.5 ${DEPT_TONE[d].dot}`}/>
+             <div>
+               <div className="text-slate-900 font-semibold text-[13px]">{d}</div>
+             </div>
+           </div>
+         ))}
+       </div>
     </div>
   );
 }
