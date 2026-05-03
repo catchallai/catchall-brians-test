@@ -14,6 +14,7 @@ import {
   Link2,
   Copy,
   Calendar as CalendarIcon,
+  Lock,
 } from 'lucide-react';
 import PageExportMenu from '@/components/wiki/PageExportMenu';
 import RelatedPagesPanel from '@/components/wiki/RelatedPagesPanel';
@@ -46,6 +47,8 @@ import VersionHistory from '@/components/wiki/VersionHistory';
 import TemplateSelector from '@/components/wiki/TemplateSelector';
 import CommentsPanel from '@/components/wiki/CommentsPanel';
 import ActiveEditors from '@/components/wiki/ActiveEditors';
+import TagsEditor from '@/components/wiki/TagsEditor';
+import PageLockPanel from '@/components/wiki/PageLockPanel';
 
 const modules = {
   toolbar: {
@@ -85,6 +88,7 @@ export default function WikiPageEditor() {
   const [status, setStatus] = useState('published');
   const [parentPageId, setParentPageId] = useState('');
   const [aiSummary, setAiSummary] = useState('');
+  const [tags, setTags] = useState([]);
   const [isTemplate, setIsTemplate] = useState(false);
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -168,6 +172,7 @@ export default function WikiPageEditor() {
       setStatus(page.status || 'published');
       setParentPageId(page.parent_page_id || '');
       setAiSummary(page.ai_summary || '');
+      setTags(page.tags || []);
       setIsTemplate(page.template || false);
     }
   }, [page]);
@@ -301,7 +306,11 @@ export default function WikiPageEditor() {
     },
   });
 
+  const isLocked = page?.is_locked;
+  const isLockedByOther = isLocked && page?.locked_by !== user?.email && user?.role !== 'admin';
+
   const handleSave = () => {
+    if (isLockedByOther) return;
     saveMutation.mutate({
       title,
       content,
@@ -309,6 +318,7 @@ export default function WikiPageEditor() {
       parent_page_id: parentPageId || null,
       ai_summary: aiSummary,
       template: isTemplate,
+      tags,
       scheduled_publish_date: scheduledPublishDate || null,
     });
   };
@@ -469,9 +479,20 @@ export default function WikiPageEditor() {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {isLocked && (
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+                isLockedByOther
+                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                  : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+              }`}>
+                <Lock className="w-3.5 h-3.5" />
+                {isLockedByOther ? `Locked by ${page.locked_by?.split('@')[0]}` : 'Locked by you'}
+              </div>
+            )}
+
             <Button
               onClick={handleSave}
-              disabled={saveMutation.isPending || !title}
+              disabled={saveMutation.isPending || !title || isLockedByOther}
               className="gap-2"
             >
               <Save className="w-4 h-4" />
@@ -561,17 +582,35 @@ export default function WikiPageEditor() {
             </Card>
           )}
 
+          {/* Tags Editor */}
+          <TagsEditor tags={tags} onChange={setTags} />
+
+          {/* Locked Warning Banner */}
+          {isLockedByOther && (
+            <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <Lock className="w-5 h-5 text-red-500 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                  This page is locked by {page.locked_by?.split('@')[0]} and cannot be edited.
+                </p>
+                {page.lock_reason && (
+                  <p className="text-xs text-red-500 mt-0.5">Reason: {page.lock_reason}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Rich Text Editor */}
-          <div className="min-h-[600px] rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className={`min-h-[600px] rounded-lg border overflow-hidden ${isLockedByOther ? 'border-red-200 dark:border-red-800 opacity-60 pointer-events-none' : 'border-gray-200 dark:border-gray-800'}`}>
             <ReactQuill
               theme="snow"
               value={content}
               onChange={(value) => {
-                setContent(value);
-                setIsEditing(true);
+                if (!isLockedByOther) { setContent(value); setIsEditing(true); }
               }}
               onBlur={() => setIsEditing(false)}
               modules={modules}
+              readOnly={isLockedByOther}
               className="h-full ql-editor-full"
               placeholder="Start writing... Supports headings, lists, code blocks, images, and more."
             />
@@ -581,8 +620,13 @@ export default function WikiPageEditor() {
         {/* Right Sidebar - Related Content & Watchers */}
         {showSidebar && pageId && (
           <div className="w-80 border-l border-gray-200 dark:border-gray-800 p-6 space-y-6 overflow-y-auto">
-            <PageWatchersPanel pageId={pageId} user={user} />
-            <RelatedPagesPanel currentPage={page} />
+            <PageLockPanel page={page} pageId={pageId} user={user} />
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+              <PageWatchersPanel pageId={pageId} user={user} />
+            </div>
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+              <RelatedPagesPanel currentPage={page} />
+            </div>
           </div>
         )}
       </div>

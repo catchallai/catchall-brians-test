@@ -1,0 +1,129 @@
+{
+  "name": "WikiPage",
+  "type": "object",
+  "properties": {
+    "space_id": {
+      "type": "string",
+      "description": "Associated space ID"
+    },
+    "folder_id": {
+      "type": "string",
+      "description": "Parent folder ID"
+    },
+    "title": {
+      "type": "string",
+      "description": "Page title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Page content (HTML)"
+    },
+    "parent_page_id": {
+      "type": "string",
+      "description": "Parent page ID for hierarchy"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Order within parent or space"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "published",
+        "archived"
+      ],
+      "default": "published",
+      "description": "Page status"
+    },
+    "template": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this page is a template"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Template used to create this page"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Page tags"
+    },
+    "last_edited_by": {
+      "type": "string",
+      "description": "Email of last editor"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated summary"
+    },
+    "version_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Current version number"
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of views"
+    },
+    "last_viewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last view timestamp"
+    },
+    "scheduled_publish_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled publish date/time"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Approver email"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Approval timestamp"
+    },
+    "watchers_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of watchers"
+    },
+    "linked_pages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of pages linked from this page"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the page is locked for editing"
+    },
+    "locked_by": {
+      "type": "string",
+      "description": "Email of user who locked the page"
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the page was locked"
+    },
+    "lock_reason": {
+      "type": "string",
+      "description": "Reason for locking the page"
+    }
+  },
+  "required": [
+    "space_id",
+    "title"
+  ]
+}

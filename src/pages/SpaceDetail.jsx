@@ -5,7 +5,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, FileText, Clock, Eye, Trash2, Edit, Folder } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Clock, Eye, Trash2, Edit, Folder, Lock, Tag } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { createPageUrl } from '@/utils';
 import FolderTree from '@/components/wiki/FolderTree';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
@@ -177,23 +178,34 @@ export default function SpaceDetail() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
                     {page.last_viewed_at && (
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
                         <Clock className="w-3 h-3" />
                         {formatDate(page.last_viewed_at)}
                       </span>
                     )}
-                    {page.view_count && (
-                      <span className="flex items-center gap-1">
+                    {page.view_count > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-gray-500">
                         <Eye className="w-3 h-3" />
                         {page.view_count} views
                       </span>
                     )}
                     {page.status === 'draft' && (
-                      <span className="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 rounded text-xs">
-                        Draft
-                      </span>
+                      <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20">Draft</Badge>
+                    )}
+                    {page.is_locked && (
+                      <Badge variant="outline" className="text-xs text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 gap-1">
+                        <Lock className="w-3 h-3" /> Locked
+                      </Badge>
+                    )}
+                    {page.tags?.length > 0 && page.tags.slice(0, 3).map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-0">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {page.tags?.length > 3 && (
+                      <span className="text-xs text-gray-400">+{page.tags.length - 3}</span>
                     )}
                   </div>
                 </div>
