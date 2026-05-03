@@ -39,7 +39,7 @@ import RolePermissionsManager from '@/components/settings/RolePermissionsManager
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
-import HubSpotSync from '@/components/settings/HubSpotSync';
+import IntegrationsManager from '@/components/settings/IntegrationsManager';
 import TrackingSettings from '@/components/settings/TrackingSettings';
 
 const SETTINGS_SECTIONS = [
@@ -543,7 +543,7 @@ export default function Settings() {
 
         {/* Integrations Tab */}
         <TabsContent value="integrations">
-          <HubSpotSync />
+          <IntegrationsManager />
         </TabsContent>
 
         {/* Tracking Tab */}
