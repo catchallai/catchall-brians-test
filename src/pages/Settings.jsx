@@ -204,30 +204,27 @@ export default function Settings() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="glass-card flex-col h-auto space-y-4 p-4">
-          {SETTINGS_SECTIONS.map(section => (
-            <div key={section.group} className="space-y-3 w-full">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-3">
-                {section.group}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                {section.tabs.map(tab => {
-                  const IconComponent = tab.icon;
-                  return (
-                    <TabsTrigger
-                      key={tab.id}
-                      value={tab.id}
-                      className="flex flex-col items-center justify-center gap-2 py-3 px-2 rounded-xl border transition-all"
-                    >
-                      <IconComponent className="w-5 h-5" />
-                      <span className="text-xs text-center">{tab.label}</span>
-                    </TabsTrigger>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </TabsList>
+        <div className="glass-card rounded-xl p-0 overflow-x-auto">
+          <div className="flex border-b border-gray-200 dark:border-gray-700">
+            {SETTINGS_SECTIONS.flatMap(section => section.tabs).map(tab => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'border-violet-500 text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/10'
+                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300'
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4" />
+                  <span className="text-sm font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Profile Tab */}
         <TabsContent value="profile">
