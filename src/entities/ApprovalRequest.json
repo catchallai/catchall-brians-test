@@ -19,6 +19,10 @@
       "type": "string",
       "description": "Associated project ID"
     },
+    "folder_id": {
+      "type": "string",
+      "description": "Associated media folder ID"
+    },
     "media_asset_ids": {
       "type": "array",
       "items": {"type": "string"},
@@ -32,6 +36,10 @@
       "type": "array",
       "items": {"type": "string"},
       "description": "Emails of approvers"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of request creator"
     },
     "status": {
       "type": "string",
@@ -64,5 +72,5 @@
       "description": "Priority level"
     }
   },
-  "required": ["title", "type"]
+  "required": ["title"]
 }
