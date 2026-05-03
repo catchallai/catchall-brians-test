@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Search, Plus, Pencil, Trash2, Mail, Phone, MapPin, Briefcase, ShieldCheck, UserPlus, Loader2, Upload, AlertCircle } from "lucide-react";
+import { Users, Search, Plus, Pencil, Trash2, Mail, Phone, MapPin, Briefcase, ShieldCheck, UserPlus, Loader2, Upload, AlertCircle, Grid3x3, List } from "lucide-react";
 import { toast } from "sonner";
 import EmployeeAccessBadge from "@/components/hris/EmployeeAccessBadge";
+import EmployeeProfileModal from "@/components/hris/EmployeeProfileModal";
 
 const STATUS_COLORS = {
   active: "bg-green-100 text-green-700",
@@ -41,6 +42,9 @@ export default function HRISEmployees() {
   const [bulkText, setBulkText] = useState("");
   const [bulkParsed, setBulkParsed] = useState([]);
   const [bulkImporting, setBulkImporting] = useState(false);
+  const [viewMode, setViewMode] = useState("grid");
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: employees = [], isLoading } = useQuery({
@@ -181,8 +185,8 @@ export default function HRISEmployees() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
+      {/* Filters & View Toggle */}
+      <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input className="pl-9" placeholder="Search employees..." value={search} onChange={e => setSearch(e.target.value)} />
@@ -204,9 +208,27 @@ export default function HRISEmployees() {
             <SelectItem value="terminated">Terminated</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex gap-1 border border-gray-200 dark:border-gray-700 rounded-lg p-1">
+          <Button
+            size="sm"
+            variant={viewMode === "grid" ? "default" : "ghost"}
+            onClick={() => setViewMode("grid")}
+            className="h-8 w-8 p-0"
+          >
+            <Grid3x3 className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant={viewMode === "list" ? "default" : "ghost"}
+            onClick={() => setViewMode("list")}
+            className="h-8 w-8 p-0"
+          >
+            <List className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      {/* Employee Grid */}
+      {/* Employee View */}
       {isLoading ? (
         <p className="text-gray-400 text-center py-12">Loading...</p>
       ) : filtered.length === 0 ? (
@@ -215,10 +237,11 @@ export default function HRISEmployees() {
           <p className="text-gray-500">No employees found</p>
           <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700" onClick={() => openDialog()}>Add First Employee</Button>
         </div>
-      ) : (
+      ) : viewMode === "grid" ? (
+        // Grid View
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(emp => (
-            <Card key={emp.id} className="hover:shadow-md transition-shadow">
+            <Card key={emp.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => { setSelectedEmployee(emp); setProfileModalOpen(true); }}>
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <Avatar className="w-12 h-12">
@@ -226,7 +249,7 @@ export default function HRISEmployees() {
                       {emp.full_name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                     <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => openDialog(emp)}>
                       <Pencil className="w-3.5 h-3.5" />
                     </Button>
@@ -251,7 +274,7 @@ export default function HRISEmployees() {
                 </div>
 
                 {/* System Access Section */}
-                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2" onClick={e => e.stopPropagation()}>
                   <EmployeeAccessBadge employee={emp} />
                   {(!emp.system_access_status || emp.system_access_status === "not_invited") && emp.system_role !== "no_access" && (
                     <Button
@@ -269,6 +292,51 @@ export default function HRISEmployees() {
                 </div>
               </CardContent>
             </Card>
+          ))}
+        </div>
+      ) : (
+        // List View
+        <div className="space-y-2">
+          {filtered.map(emp => (
+            <div
+              key={emp.id}
+              className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              onClick={() => { setSelectedEmployee(emp); setProfileModalOpen(true); }}
+            >
+              <Avatar className="w-10 h-10 flex-shrink-0">
+                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-sm font-semibold">
+                  {emp.full_name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 dark:text-white truncate">{emp.full_name}</p>
+                <p className="text-xs text-gray-500 truncate">{emp.email}</p>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2">
+                <Badge className={STATUS_COLORS[emp.status] || "bg-gray-100 text-gray-600"}>{emp.status}</Badge>
+              </div>
+
+              <div className="hidden md:flex items-center gap-1 text-xs text-gray-500">
+                <Briefcase className="w-3 h-3" />
+                {emp.job_title || "—"}
+              </div>
+
+              <div className="hidden lg:flex items-center gap-1 text-xs text-gray-500">
+                <MapPin className="w-3 h-3" />
+                {emp.location || emp.department || "—"}
+              </div>
+
+              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="w-7 h-7" onClick={() => openDialog(emp)}>
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="w-7 h-7 text-red-400 hover:text-red-600" onClick={() => deleteMutation.mutate(emp.id)}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
@@ -452,6 +520,13 @@ export default function HRISEmployees() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Employee Profile Modal */}
+      <EmployeeProfileModal 
+        employee={selectedEmployee} 
+        open={profileModalOpen} 
+        onOpenChange={setProfileModalOpen}
+      />
     </div>
   );
 }
