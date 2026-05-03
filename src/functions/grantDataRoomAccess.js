@@ -1,7 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // deno-lint-ignore no-undef
-Deno.serve(async (req) => {
+const serve = Deno.serve;
+
+serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -63,8 +65,8 @@ Deno.serve(async (req) => {
     const dataRoom = await base44.asServiceRole.entities.ProjectDataRoom.get(dataRoomId);
 
     // deno-lint-ignore no-undef
-    // deno-lint-ignore no-undef
-    const portalUrl = `${Deno.env.get('APP_URL') || 'http://localhost:5173'}/DataRoomPortal?token=${token}`;
+    const getEnv = Deno.env.get;
+    const portalUrl = `${getEnv('APP_URL') || 'http://localhost:5173'}/DataRoomPortal?token=${token}`;
 
     // Send welcome email to client (optional - integrate with email service)
     console.log(`Client access granted: ${contactEmail}`);

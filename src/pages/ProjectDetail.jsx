@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,8 @@ import ProjectModal from '@/components/modals/ProjectModal';
 import TaskModal from '@/components/modals/TaskModal';
 
 export default function ProjectDetail() {
-  const [searchParams] = useSearchParams();
+  const { id: projectId } = useParams();
   const navigate = useNavigate();
-  const projectId = searchParams.get('id');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);

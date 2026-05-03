@@ -191,7 +191,7 @@ const AuthenticatedApp = () => {
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
       <Route path="/DataRoomPortal" element={<DataRoomPortal />} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
-      <Route path="/ProjectDetail" element={<LayoutWrapper currentPageName="ProjectDetail"><ProjectDetail /></LayoutWrapper>} />
+      <Route path="/ProjectDetail/:id" element={<LayoutWrapper currentPageName="ProjectDetail"><ProjectDetail /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

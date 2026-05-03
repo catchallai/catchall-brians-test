@@ -386,7 +386,7 @@ export default function Projects() {
               <Card
                 key={project.id}
                 className="p-5 glass-card hover:shadow-lg transition-all h-full cursor-pointer"
-                onClick={() => navigate(`/ProjectDetail?id=${project.id}`)}
+                onClick={() => navigate(`/ProjectDetail/${project.id}`)}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -461,7 +461,7 @@ export default function Projects() {
               <Card
                 key={project.id}
                 className="p-4 glass-card hover:shadow-md transition-all cursor-pointer"
-                onClick={() => navigate(`/ProjectDetail?id=${project.id}`)}
+                onClick={() => navigate(`/ProjectDetail/${project.id}`)}
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
