@@ -174,21 +174,23 @@ export default function Spaces() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header Bar */}
-        <div className="h-12 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 bg-white dark:bg-gray-950">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Untitled</span>
+        {selectedSpace && (
+          <div className="h-12 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 bg-white dark:bg-gray-950">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Untitled</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">Saved</span>
+              <Button size="sm" className="h-7 px-3 text-xs bg-violet-600 hover:bg-violet-700">
+                Publish
+              </Button>
+              <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
+                Close
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">Saved</span>
-            <Button size="sm" className="h-7 px-3 text-xs bg-violet-600 hover:bg-violet-700">
-              Publish
-            </Button>
-            <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
-              Close
-            </Button>
-          </div>
-        </div>
+        )}
 
         {/* Content Area */}
         {!selectedSpace ? (
