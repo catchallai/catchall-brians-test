@@ -40,6 +40,7 @@ import HRISOrgChart from './pages/HRISOrgChart';
 import PublicDataRoomPortal from './pages/PublicDataRoomPortal';
 import SpaceDetail from './pages/SpaceDetail';
 import Documentation from './pages/Documentation';
+import ProjectDetail from './pages/ProjectDetail';
 import CompanySettingsPage from './pages/CompanySettingsPage';
 import PlatformWorkflowMap from './pages/PlatformWorkflowMap';
 import SlideDeckManagement from './pages/SlideDeckManagement';
@@ -190,6 +191,7 @@ const AuthenticatedApp = () => {
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
       <Route path="/DataRoomPortal" element={<DataRoomPortal />} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
+      <Route path="/ProjectDetail" element={<LayoutWrapper currentPageName="ProjectDetail"><ProjectDetail /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

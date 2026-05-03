@@ -1,4 +1,3 @@
-// deno-lint-ignore no-undef
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // deno-lint-ignore no-undef
@@ -63,6 +62,7 @@ Deno.serve(async (req) => {
     // Get data room info for portal URL
     const dataRoom = await base44.asServiceRole.entities.ProjectDataRoom.get(dataRoomId);
 
+    // deno-lint-ignore no-undef
     // deno-lint-ignore no-undef
     const portalUrl = `${Deno.env.get('APP_URL') || 'http://localhost:5173'}/DataRoomPortal?token=${token}`;
 
