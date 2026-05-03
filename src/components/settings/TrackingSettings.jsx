@@ -12,10 +12,16 @@ import {
   Copy,
   Plus,
   Trash2,
-  RefreshCw,
   CheckCircle,
   XCircle,
   Activity,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  Rocket,
+  Globe,
+  BarChart3,
+  Layers,
 } from 'lucide-react';
 
 function generateKey() {
@@ -48,6 +54,112 @@ function CodeBlock({ code }) {
         {copied ? <CheckCircle className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
       </button>
     </div>
+  );
+}
+
+const HOW_TO_STEPS = [
+  {
+    icon: Rocket,
+    color: 'text-violet-500',
+    bg: 'bg-violet-50 dark:bg-violet-900/20',
+    title: 'Step 1 — Generate a Tracking Key',
+    desc: 'Enter a name (e.g. "Company Website") and optionally the domain, then click Generate Key. Each website should have its own unique key.',
+  },
+  {
+    icon: Code2,
+    color: 'text-indigo-500',
+    bg: 'bg-indigo-50 dark:bg-indigo-900/20',
+    title: 'Step 2 — Copy the Snippet',
+    desc: 'Click on any active key below to expand it. Copy the snippet that fits your platform — use the Auto-Loader for most sites, or the Manual snippet for SPAs and React/Vue apps.',
+  },
+  {
+    icon: Globe,
+    color: 'text-blue-500',
+    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    title: 'Step 3 — Paste into Your Website',
+    desc: (
+      <span>
+        Add the snippet inside the{' '}
+        <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">&lt;head&gt;</code> tag of every page you want to track.
+        <span className="block mt-2 space-y-1">
+          <span className="block">• <strong>WordPress:</strong> Appearance → Theme Editor → header.php, or use a "Header &amp; Footer Scripts" plugin.</span>
+          <span className="block">• <strong>Shopify:</strong> Online Store → Themes → Edit Code → layout/theme.liquid → inside <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">&lt;head&gt;</code>.</span>
+          <span className="block">• <strong>Webflow:</strong> Project Settings → Custom Code → Head Code.</span>
+          <span className="block">• <strong>Squarespace:</strong> Settings → Advanced → Code Injection → Header.</span>
+          <span className="block">• <strong>Wix:</strong> Settings → Custom Code → Add to &lt;head&gt;.</span>
+          <span className="block">• <strong>HTML / Static:</strong> Paste directly in your <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">index.html</code> or shared template file.</span>
+          <span className="block">• <strong>React / Next.js / Vue:</strong> Use the Manual snippet inside your root component or app entry point (e.g. <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">_app.js</code>, <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">App.vue</code>).</span>
+        </span>
+      </span>
+    ),
+  },
+  {
+    icon: Layers,
+    color: 'text-cyan-500',
+    bg: 'bg-cyan-50 dark:bg-cyan-900/20',
+    title: 'Step 4 — Publish & Verify',
+    desc: 'Publish your website changes, then visit a page. Within a few seconds the "Last Seen" timestamp and event counter on your key will update — confirming tracking is live.',
+  },
+  {
+    icon: BarChart3,
+    color: 'text-green-500',
+    bg: 'bg-green-50 dark:bg-green-900/20',
+    title: 'Step 5 — View Your Data',
+    desc: 'Navigate to Web → Web Analytics (Traffic Analytics) to see real-time visitors, sessions, pages, devices, locations, and referrers. Visitor Profiles and Advanced Analytics will also populate automatically.',
+  },
+];
+
+function HowToGuide() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Card className="glass-card rounded-2xl border-2 border-indigo-100 dark:border-indigo-900/40">
+      <button
+        className="w-full text-left"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <BookOpen className="w-5 h-5 text-indigo-500" />
+              How to Add Tracking to Your Website
+            </CardTitle>
+            {open ? (
+              <ChevronUp className="w-5 h-5 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-400" />
+            )}
+          </div>
+          {!open && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              5-step guide — works with WordPress, Shopify, Webflow, Wix, React, and more.
+            </p>
+          )}
+        </CardHeader>
+      </button>
+
+      {open && (
+        <CardContent className="pt-0 space-y-3">
+          {HOW_TO_STEPS.map((step, i) => (
+            <div key={i} className={`flex gap-4 p-4 rounded-xl ${step.bg}`}>
+              <div className={`shrink-0 mt-0.5 ${step.color}`}>
+                <step.icon className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <p className={`text-sm font-semibold ${step.color}`}>{step.title}</p>
+                <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {step.desc}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl text-sm text-amber-700 dark:text-amber-300">
+            <strong>Tip:</strong> Use a separate key for each website or client. This lets you filter traffic data per site and revoke access independently without affecting other properties.
+          </div>
+        </CardContent>
+      )}
+    </Card>
   );
 }
 
@@ -145,6 +257,9 @@ fetch("${baseUrl}/api/functions/trackVisitor", {
 
   return (
     <div className="space-y-6">
+      {/* How-To Guide */}
+      <HowToGuide />
+
       {/* Header */}
       <Card className="glass-card rounded-2xl">
         <CardHeader>
