@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
-import HashtagPoolSelector, { type HashtagPool } from '@/components/social/HashtagPoolSelector';
+import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { appendHashtagToCaption, createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -92,7 +92,6 @@ import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 import {
   renderApprovalNotificationEmail,
   APPROVAL_EMAIL_MAX_ROWS,
-  type ApprovalEmailPendingItem,
 } from '@/lib/emails/approvalNotification';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { normalizeReviewers } from '@/utils/reviewers';
@@ -181,7 +180,7 @@ export interface PostComposerProps {
   /** When provided, a close button is rendered and clicking it (or saving) calls onClose. */
   onClose?: () => void;
   isLoading: boolean;
-  hashtagPool?: HashtagPool[];
+  hashtagPool?: any[];
   currentMonth?: Date;
   /** Hides the PostStatusChip in the header. */
   hideStatus?: boolean;
@@ -2545,7 +2544,7 @@ const PostComposer = forwardRef<PostComposerRef, PostComposerProps>(function Pos
                 <HashtagPoolSelector
                   pools={hashtagPool}
                   toggledPoolIds={toggledPoolIds}
-                  onToggle={handleTogglePool as (pool: HashtagPool) => void}
+                  onToggle={handleTogglePool}
                 />
               )}
 
