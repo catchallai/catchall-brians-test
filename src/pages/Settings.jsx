@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import DepartmentPermissionsManager from '@/components/settings/DepartmentPermissionsManager';
+import TeamAccessMatrix from '@/components/settings/TeamAccessMatrix';
 import UserManagement from '@/components/settings/UserManagement';
 import DataManagement from '@/components/settings/DataManagement';
 import AIToggleSettings from '@/components/settings/AIToggleSettings';
@@ -524,18 +525,13 @@ export default function Settings() {
 
         {/* Team & Permissions Tab */}
         <TabsContent value="team" className="space-y-6">
-          <div className="space-y-6">
-            {/* Team Users Section */}
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Team Users</h2>
-              <UserManagement />
-            </div>
+          {/* Team Access Matrix */}
+          <TeamAccessMatrix />
 
-            {/* Department Permissions Section */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Department Permissions</h2>
-              <DepartmentPermissionsManager />
-            </div>
+          {/* Department Permissions Reference */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Department Permission Reference</h2>
+            <DepartmentPermissionsManager />
           </div>
         </TabsContent>
 
