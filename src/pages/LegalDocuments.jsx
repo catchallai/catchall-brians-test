@@ -382,7 +382,7 @@ export default function LegalDocuments() {
             const StatusIcon = statusConfig.icon;
 
             return (
-              <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+              <Card key={doc.id} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => { setEditingDoc(doc); setShowModal(true); }}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -433,7 +433,7 @@ export default function LegalDocuments() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       {doc.status === 'draft' && (
                         <Button
                           size="sm"

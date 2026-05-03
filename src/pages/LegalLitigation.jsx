@@ -59,8 +59,8 @@ export default function LegalLitigation() {
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {filtered.length === 0 && <tr><td colSpan={11} className="px-4 py-8 text-center text-gray-400">No cases found.</td></tr>}
             {filtered.map(i => (
-              <tr key={i.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                <td className="px-4 py-3"><p className="font-medium text-gray-900 dark:text-white">{i.case_name}</p>{i.case_number && <p className="text-xs text-gray-400">#{i.case_number}</p>}</td>
+              <tr key={i.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer" onClick={() => openEdit(i)}>
+                <td className="px-4 py-3"><p className="font-medium text-red-600 dark:text-red-400 hover:underline">{i.case_name}</p>{i.case_number && <p className="text-xs text-gray-400">#{i.case_number}</p>}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.case_type}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.our_role}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.opposing_party || '—'}</td>
@@ -70,7 +70,7 @@ export default function LegalLitigation() {
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.legal_reserve ? `$${Number(i.legal_reserve).toLocaleString()}` : '—'}</td>
                 <td className="px-4 py-3"><Badge value={i.priority} map={PRIORITY_COLORS} /></td>
                 <td className="px-4 py-3"><Badge value={i.status} map={STATUS_COLORS} /></td>
-                <td className="px-4 py-3 flex gap-1">
+                <td className="px-4 py-3 flex gap-1" onClick={e => e.stopPropagation()}>
                   {i.file_url && <a href={i.file_url} target="_blank" rel="noopener noreferrer"><Button size="icon" variant="ghost"><ExternalLink className="w-4 h-4" /></Button></a>}
                   <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
                   <Button size="icon" variant="ghost" className="text-red-500" onClick={() => del.mutate(i.id)}><Trash2 className="w-4 h-4" /></Button>
@@ -83,7 +83,7 @@ export default function LegalLitigation() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Case' : 'New Case'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.case_name}` : 'New Case'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Case Name</Label><Input value={form.case_name} onChange={e => set('case_name', e.target.value)} /></div>
             <div><Label className="text-xs mb-1 block">Case Number</Label><Input value={form.case_number ?? ''} onChange={e => set('case_number', e.target.value)} /></div>

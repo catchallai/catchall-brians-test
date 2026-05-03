@@ -47,10 +47,10 @@ export default function LegalCounsel() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {items.length === 0 && <p className="text-gray-400 text-sm col-span-3 py-8 text-center">No counsel records yet.</p>}
         {items.map(i => (
-          <div key={i.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div key={i.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => openEdit(i)}>
             <div className="flex justify-between items-start mb-3">
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">{i.name}</p>
+                <p className="font-semibold text-teal-600 dark:text-teal-400 hover:underline">{i.name}</p>
                 {i.firm_name && <p className="text-xs text-gray-500">{i.firm_name}</p>}
               </div>
               <Badge value={i.status} map={STATUS_COLORS} />
@@ -66,7 +66,7 @@ export default function LegalCounsel() {
               {i.hourly_rate && <p>💰 ${i.hourly_rate}/hr</p>}
               {i.ytd_spend && <p>📊 YTD: ${Number(i.ytd_spend).toLocaleString()}</p>}
             </div>
-            <div className="flex justify-end gap-1 mt-3">
+            <div className="flex justify-end gap-1 mt-3" onClick={e => e.stopPropagation()}>
               <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
               <Button size="icon" variant="ghost" className="text-red-500" onClick={() => del.mutate(i.id)}><Trash2 className="w-4 h-4" /></Button>
             </div>
@@ -76,7 +76,7 @@ export default function LegalCounsel() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Counsel' : 'Add Counsel'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.name}` : 'Add Counsel'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Full Name</Label><Input value={form.name} onChange={e => set('name', e.target.value)} /></div>
             <div><Label className="text-xs mb-1 block">Firm Name</Label><Input value={form.firm_name ?? ''} onChange={e => set('firm_name', e.target.value)} /></div>

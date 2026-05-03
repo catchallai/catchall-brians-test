@@ -50,8 +50,8 @@ export default function LegalEntities() {
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {items.length === 0 && <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400">No entities found.</td></tr>}
             {items.map(i => (
-              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${reportDueSoon(i) ? 'bg-yellow-50/40 dark:bg-yellow-900/10' : ''}`}>
-                <td className="px-4 py-3"><p className="font-medium text-gray-900 dark:text-white">{i.name}</p>{reportDueSoon(i) && <span className="text-xs text-yellow-600 font-medium">Annual report due soon</span>}</td>
+              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer ${reportDueSoon(i) ? 'bg-yellow-50/40 dark:bg-yellow-900/10' : ''}`} onClick={() => openEdit(i)}>
+                <td className="px-4 py-3"><p className="font-medium text-slate-700 dark:text-slate-300 hover:underline hover:text-slate-900 dark:hover:text-white">{i.name}</p>{reportDueSoon(i) && <span className="text-xs text-yellow-600 font-medium">Annual report due soon</span>}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.entity_type?.replace(/_/g, ' ')}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.jurisdiction || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.registration_number || '—'}</td>
@@ -60,7 +60,7 @@ export default function LegalEntities() {
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.incorporation_date || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.annual_report_due || '—'}</td>
                 <td className="px-4 py-3"><Badge value={i.status} map={STATUS_COLORS} /></td>
-                <td className="px-4 py-3 flex gap-1">
+                <td className="px-4 py-3 flex gap-1" onClick={e => e.stopPropagation()}>
                   <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
                   <Button size="icon" variant="ghost" className="text-red-500" onClick={() => del.mutate(i.id)}><Trash2 className="w-4 h-4" /></Button>
                 </td>
@@ -72,7 +72,7 @@ export default function LegalEntities() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Entity' : 'Add Entity'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.name}` : 'Add Entity'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Entity Name</Label><Input value={form.name} onChange={e => set('name', e.target.value)} /></div>
             <div><Label className="text-xs mb-1 block">Entity Type</Label>

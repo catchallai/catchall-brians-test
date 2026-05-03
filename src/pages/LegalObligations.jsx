@@ -56,8 +56,8 @@ export default function LegalObligations() {
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {filtered.length === 0 && <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">No obligations found.</td></tr>}
             {filtered.map(i => (
-              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${overdue(i) ? 'bg-red-50/40 dark:bg-red-900/10' : ''}`}>
-                <td className="px-4 py-3"><p className="font-medium text-gray-900 dark:text-white">{i.title}</p>{overdue(i) && <span className="text-xs text-red-600 font-medium">Overdue</span>}</td>
+              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer ${overdue(i) ? 'bg-red-50/40 dark:bg-red-900/10' : ''}`} onClick={() => openEdit(i)}>
+                <td className="px-4 py-3"><p className="font-medium text-orange-600 dark:text-orange-400 hover:underline">{i.title}</p>{overdue(i) && <span className="text-xs text-red-600 font-medium">Overdue</span>}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.obligation_type?.replace(/_/g, ' ')}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.regulation_name || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.jurisdiction || '—'}</td>
@@ -65,7 +65,7 @@ export default function LegalObligations() {
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.due_date || '—'}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.recurrence?.replace(/_/g, ' ')}</td>
                 <td className="px-4 py-3"><Badge value={i.status} map={STATUS_COLORS} /></td>
-                <td className="px-4 py-3 flex gap-1">
+                <td className="px-4 py-3 flex gap-1" onClick={e => e.stopPropagation()}>
                   {i.file_url && <a href={i.file_url} target="_blank" rel="noopener noreferrer"><Button size="icon" variant="ghost"><ExternalLink className="w-4 h-4" /></Button></a>}
                   <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
                   <Button size="icon" variant="ghost" className="text-red-500" onClick={() => del.mutate(i.id)}><Trash2 className="w-4 h-4" /></Button>
@@ -78,7 +78,7 @@ export default function LegalObligations() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Obligation' : 'New Obligation'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.title}` : 'New Obligation'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Title</Label><Input value={form.title} onChange={e => set('title', e.target.value)} /></div>
             <div className="col-span-2"><Label className="text-xs mb-1 block">Description</Label><Textarea rows={2} value={form.description} onChange={e => set('description', e.target.value)} /></div>

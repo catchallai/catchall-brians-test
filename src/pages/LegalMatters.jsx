@@ -69,8 +69,8 @@ export default function LegalMatters() {
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {filtered.length === 0 && <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">No matters found.</td></tr>}
             {filtered.map(i => (
-              <tr key={i.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                <td className="px-4 py-3"><p className="font-medium text-gray-900 dark:text-white">{i.title}</p>{i.jurisdiction && <p className="text-xs text-gray-400">{i.jurisdiction}</p>}</td>
+              <tr key={i.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer" onClick={() => openEdit(i)}>
+                <td className="px-4 py-3"><p className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">{i.title}</p>{i.jurisdiction && <p className="text-xs text-gray-400">{i.jurisdiction}</p>}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.matter_type?.replace(/_/g, ' ')}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.assigned_attorney || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.client_name || '—'}</td>
@@ -78,7 +78,7 @@ export default function LegalMatters() {
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.estimated_cost ? `$${Number(i.estimated_cost).toLocaleString()}` : '—'}</td>
                 <td className="px-4 py-3"><Badge value={i.priority} map={PRIORITY_COLORS} /></td>
                 <td className="px-4 py-3"><Badge value={i.status} map={STATUS_COLORS} /></td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                   <div className="flex gap-1">
                     {i.file_url && <a href={i.file_url} target="_blank" rel="noopener noreferrer"><Button size="icon" variant="ghost"><ExternalLink className="w-4 h-4" /></Button></a>}
                     <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
@@ -93,7 +93,7 @@ export default function LegalMatters() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit Matter' : 'New Legal Matter'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.title}` : 'New Legal Matter'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Title</Label><Input value={form.title} onChange={e => set('title', e.target.value)} /></div>
             <div className="col-span-2"><Label className="text-xs mb-1 block">Description</Label><Textarea rows={2} value={form.description} onChange={e => set('description', e.target.value)} /></div>

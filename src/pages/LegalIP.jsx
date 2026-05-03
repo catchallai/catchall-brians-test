@@ -58,8 +58,8 @@ export default function LegalIP() {
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {filtered.length === 0 && <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400">No IP assets found.</td></tr>}
             {filtered.map(i => (
-              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 ${expiringSoon(i) ? 'bg-yellow-50/40 dark:bg-yellow-900/10' : ''}`}>
-                <td className="px-4 py-3"><p className="font-medium text-gray-900 dark:text-white">{i.title}</p>{expiringSoon(i) && <span className="text-xs text-yellow-600 font-medium">Expiring soon</span>}</td>
+              <tr key={i.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer ${expiringSoon(i) ? 'bg-yellow-50/40 dark:bg-yellow-900/10' : ''}`} onClick={() => openEdit(i)}>
+                <td className="px-4 py-3"><p className="font-medium text-blue-600 dark:text-blue-400 hover:underline">{i.title}</p>{expiringSoon(i) && <span className="text-xs text-yellow-600 font-medium">Expiring soon</span>}</td>
                 <td className="px-4 py-3 capitalize text-gray-600 dark:text-gray-300">{i.ip_type?.replace(/_/g, ' ')}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.registration_number || i.application_number || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.jurisdiction || '—'}</td>
@@ -68,7 +68,7 @@ export default function LegalIP() {
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.expiry_date || '—'}</td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{i.estimated_value ? `$${Number(i.estimated_value).toLocaleString()}` : '—'}</td>
                 <td className="px-4 py-3"><Badge value={i.status} map={STATUS_COLORS} /></td>
-                <td className="px-4 py-3 flex gap-1">
+                <td className="px-4 py-3 flex gap-1" onClick={e => e.stopPropagation()}>
                   {i.file_url && <a href={i.file_url} target="_blank" rel="noopener noreferrer"><Button size="icon" variant="ghost"><ExternalLink className="w-4 h-4" /></Button></a>}
                   <Button size="icon" variant="ghost" onClick={() => openEdit(i)}><Pencil className="w-4 h-4" /></Button>
                   <Button size="icon" variant="ghost" className="text-red-500" onClick={() => del.mutate(i.id)}><Trash2 className="w-4 h-4" /></Button>
@@ -81,7 +81,7 @@ export default function LegalIP() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{editing ? 'Edit IP Asset' : 'New IP Asset'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editing ? `Edit: ${editing.title}` : 'New IP Asset'}</DialogTitle></DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="col-span-2"><Label className="text-xs mb-1 block">Title</Label><Input value={form.title} onChange={e => set('title', e.target.value)} /></div>
             <div className="col-span-2"><Label className="text-xs mb-1 block">Description</Label><Textarea rows={2} value={form.description} onChange={e => set('description', e.target.value)} /></div>
