@@ -131,7 +131,6 @@ export const FEATURE_PAGE_MAP = {
   webAnalyticsAdvanced: 'WebAnalyticsAdvanced',
   trafficAnalytics: 'TrafficAnalytics',
   visitorProfiles: 'VisitorProfiles',
-  userJourneyMapping: 'TrafficAnalytics',
   localSEO: 'LocalSEO',
   contentStudio: 'ContentStudio',
   mediaOutreach: 'MediaOutreach',
