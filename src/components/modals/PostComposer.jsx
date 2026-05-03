@@ -8,7 +8,7 @@ import {
 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
-import HashtagPoolSelector, { type HashtagPool } from '@/components/social/HashtagPoolSelector';
+import HashtagPoolSelector from '@/components/social/HashtagPoolSelector';
 import { appendHashtagToCaption, createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -201,44 +201,10 @@ export interface PostComposerProps {
 // Constants
 // ---------------------------------------------------------------------------
 
-const BEST_TIMES: Record<string, {day: string;time: string;label: string;}[]> = {
-  Facebook: [
-  { day: 'Wednesday', time: '11:00', label: 'Wed 11am' },
-  { day: 'Thursday', time: '13:00', label: 'Thu 1pm' },
-  { day: 'Friday', time: '10:00', label: 'Fri 10am' }],
-
-  Instagram: [
-  { day: 'Monday', time: '11:00', label: 'Mon 11am' },
-  { day: 'Wednesday', time: '14:00', label: 'Wed 2pm' },
-  { day: 'Friday', time: '10:00', label: 'Fri 10am' }],
-
-  LinkedIn: [
-  { day: 'Tuesday', time: '09:00', label: 'Tue 9am' },
-  { day: 'Wednesday', time: '12:00', label: 'Wed 12pm' },
-  { day: 'Thursday', time: '10:00', label: 'Thu 10am' }],
-
-  Twitter: [
-  { day: 'Wednesday', time: '09:00', label: 'Wed 9am' },
-  { day: 'Friday', time: '09:00', label: 'Fri 9am' },
-  { day: 'Tuesday', time: '10:00', label: 'Tue 10am' }],
-
-  YouTube: [
-  { day: 'Wednesday', time: '09:00', label: 'Wed 9am' },
-  { day: 'Friday', time: '09:00', label: 'Fri 9am' },
-  { day: 'Tuesday', time: '10:00', label: 'Tue 10am' }]
-
-};
+const BEST_TIMES: Record<string, {day: string;time: string;label: string;}[]> = {Facebook: [{day: 'Wednesday',time: '11:00',label: 'Wed 11am'},{day: 'Thursday',time: '13:00',label: 'Thu 1pm'},{day: 'Friday',time: '10:00',label: 'Fri 10am'}],Instagram: [{day: 'Monday',time: '11:00',label: 'Mon 11am'},{day: 'Wednesday',time: '14:00',label: 'Wed 2pm'},{day: 'Friday',time: '10:00',label: 'Fri 10am'}],LinkedIn: [{day: 'Tuesday',time: '09:00',label: 'Tue 9am'},{day: 'Wednesday',time: '12:00',label: 'Wed 12pm'},{day: 'Thursday',time: '10:00',label: 'Thu 10am'}],Twitter: [{day: 'Wednesday',time: '09:00',label: 'Wed 9am'},{day: 'Friday',time: '09:00',label: 'Fri 9am'},{day: 'Tuesday',time: '10:00',label: 'Tue 10am'}],YouTube: [{day: 'Wednesday',time: '09:00',label: 'Wed 9am'},{day: 'Friday',time: '09:00',label: 'Fri 9am'},{day: 'Tuesday',time: '10:00',label: 'Tue 10am'}]};
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-// Statuses representing an active review workflow. Used to (a) auto-navigate
-// to PostApprovalView after save in standalone composer mode and (b) preserve
-// the existing status when saving edits to an in-review post.
-const APPROVAL_BOUND_STATUSES: Set<PostStatus> = new Set([
-PostStatus.PENDING_APPROVAL,
-PostStatus.CHANGES_REQUESTED,
-PostStatus.PENDING_REVIEW]
-);
+const APPROVAL_BOUND_STATUSES: Set<PostStatus> = new Set([PostStatus.PENDING_APPROVAL, PostStatus.CHANGES_REQUESTED, PostStatus.PENDING_REVIEW]);
 
 const PLATFORMS = PLATFORM_CONFIGS.map((p) => ({
   ...p,
@@ -267,19 +233,7 @@ const DEFAULT_FORM: PostFormData = {
   auto_post: false
 };
 
-const DIRTY_FIELDS: (keyof PostFormData)[] = [
-'caption',
-'image_url',
-'video_url',
-'media_type',
-'scheduled_date',
-'scheduled_time',
-'timezone',
-'status',
-'order',
-'is_recurring',
-'recurrence_type',
-'recurrence_end_date'];
+const DIRTY_FIELDS: (keyof PostFormData)[] = ['caption', 'image_url', 'video_url', 'media_type', 'scheduled_date', 'scheduled_time', 'timezone', 'status', 'order', 'is_recurring', 'recurrence_type', 'recurrence_end_date'];
 
 
 // ---------------------------------------------------------------------------
@@ -378,26 +332,11 @@ interface PlatformPreviewPanelProps {
   onCropClick?: () => void;
 }
 
-// This component renders a preview of how the post will look on a specific platform, based on the current form data.
-function PlatformPreviewPanel({
-  platform,
-  caption,
-  imageUrl,
-  videoUrl,
-  imageAspectRatio = 1.91,
-  onCropClick
-}: PlatformPreviewPanelProps) {
-  // Store the inferred natural ratio alongside the URL it came from. When the
-  // prop URL changes, the stored URL no longer matches and inferredRatio
-  // derives to null automatically — no effect, no render-phase setState, and
-  // no brief paint with the previous image's ratio.
+// Preview component for posts on platforms
+function PlatformPreviewPanel({platform, caption, imageUrl, videoUrl, imageAspectRatio = 1.91, onCropClick}: PlatformPreviewPanelProps) {
   const [inferred, setInferred] = useState<{url: string;ratio: number;} | null>(null);
   const inferredRatio = inferred?.url === imageUrl ? inferred.ratio : null;
-
-  const p =
-  PLATFORMS.find((pl) => pl.id === platform) ??
-  PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ??
-  PLATFORMS[0];
+  const p = PLATFORMS.find((pl) => pl.id === platform) ?? PLATFORMS.find((pl) => pl.id === PLATFORMS[0].id) ?? PLATFORMS[0];
   const overLimit = caption.length > p.limit;
   const truncated = caption.length > p.limit ? caption.slice(0, p.limit) + '…' : caption;
 
@@ -505,45 +444,8 @@ function BestTimeSuggestions({ platforms, onApply }: BestTimeSuggestionsProps) {
   const activePlatforms = platforms.length > 0 ? platforms : ['Twitter'];
   const primaryPlatform = activePlatforms[0];
   const suggestions = BEST_TIMES[primaryPlatform] ?? BEST_TIMES['Twitter'];
-
-  const getNextOccurrence = (dayName: string): string => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const targetDay = days.findIndex((d) => d === dayName);
-    const today = new Date();
-    const todayDay = today.getDay();
-    let daysUntil = (targetDay - todayDay + 7) % 7;
-    if (daysUntil === 0) daysUntil = 7;
-    const next = new Date(today);
-    next.setDate(today.getDate() + daysUntil);
-    return next.toISOString().split('T')[0];
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
-        <Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-        <span>
-          {COPY.calendarPostModal.bestTimesForPlatform.replace('{platform}', primaryPlatform)}
-        </span>
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        {suggestions.map((s, i) =>
-        <button
-          key={i}
-          onClick={() => onApply(getNextOccurrence(s.day), s.time)}
-          className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors text-center group">
-          
-            <div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">
-              {s.label}
-            </div>
-            <div className="text-gray-400 group-hover:text-violet-500 mt-0.5">
-              {COPY.calendarPostModal.apply}
-            </div>
-          </button>
-        )}
-      </div>
-    </div>);
-
+  const getNextOccurrence = (dayName: string): string => {const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; const targetDay = days.findIndex((d) => d === dayName); const today = new Date(); const todayDay = today.getDay(); let daysUntil = (targetDay - todayDay + 7) % 7; if (daysUntil === 0) daysUntil = 7; const next = new Date(today); next.setDate(today.getDate() + daysUntil); return next.toISOString().split('T')[0];};
+  return (<div className="space-y-2"><div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2"><Zap className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" /><span>{COPY.calendarPostModal.bestTimesForPlatform.replace('{platform}', primaryPlatform)}</span></div><div className="grid grid-cols-3 gap-2">{suggestions.map((s, i) => <button key={i} onClick={() => onApply(getNextOccurrence(s.day), s.time)} className="text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg px-2 py-2 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors text-center group"><div className="font-semibold text-gray-700 dark:text-gray-300 group-hover:text-violet-700 dark:group-hover:text-violet-400">{s.label}</div><div className="text-gray-400 group-hover:text-violet-500 mt-0.5">{COPY.calendarPostModal.apply}</div></button>)}</div></div>);
 }
 
 interface RecurringSchedulePanelProps {
@@ -554,62 +456,10 @@ interface RecurringSchedulePanelProps {
 function RecurringSchedulePanel({ formData, setFormData }: RecurringSchedulePanelProps) {
   const toggleDay = (dayIndex: number) => {
     const days = formData.recurrence_days ?? [];
-    const updated = days.includes(dayIndex) ?
-    days.filter((d) => d !== dayIndex) :
-    [...days, dayIndex];
+    const updated = days.includes(dayIndex) ? days.filter((d) => d !== dayIndex) : [...days, dayIndex];
     setFormData((f) => ({ ...f, recurrence_days: updated }));
   };
-
-  return (
-    <div className="space-y-3 pt-1">
-      <div className="flex items-center gap-2">
-        <Select
-          value={formData.recurrence_type || 'weekly'}
-          onValueChange={(v) => setFormData((f) => ({ ...f, recurrence_type: v }))}>
-          
-          <TypedSelectTrigger className="h-8 text-xs w-28">
-            <TypedSelectValue />
-          </TypedSelectTrigger>
-          <TypedSelectContent>
-            <TypedSelectItem value="daily">{COPY.calendarPostModal.daily}</TypedSelectItem>
-            <TypedSelectItem value="weekly">{COPY.calendarPostModal.weekly}</TypedSelectItem>
-            <TypedSelectItem value="monthly">{COPY.calendarPostModal.monthly}</TypedSelectItem>
-          </TypedSelectContent>
-        </Select>
-        <span className="text-xs text-gray-400">{COPY.calendarPostModal.repeat}</span>
-      </div>
-
-      {formData.recurrence_type === 'weekly' &&
-      <div className="flex gap-1 flex-wrap">
-          {DAYS_OF_WEEK.map((day, idx) =>
-        <button
-          key={day}
-          onClick={() => toggleDay(idx)}
-          className={`w-9 h-9 rounded-full text-xs font-medium transition-all ${
-          (formData.recurrence_days ?? []).includes(idx) ?
-          'bg-violet-600 text-white' :
-          'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`
-          }>
-          
-              {day}
-            </button>
-        )}
-        </div>
-      }
-
-      <div>
-        <label className="text-xs text-gray-500 mb-1 block">
-          {COPY.calendarPostModal.endDateOptional}
-        </label>
-        <input
-          type="date"
-          value={formData.recurrence_end_date || ''}
-          onChange={(e) => setFormData((f) => ({ ...f, recurrence_end_date: e.target.value }))}
-          className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" />
-        
-      </div>
-    </div>);
-
+  return (<div className="space-y-3 pt-1"><div className="flex items-center gap-2"><Select value={formData.recurrence_type || 'weekly'} onValueChange={(v) => setFormData((f) => ({ ...f, recurrence_type: v }))}><TypedSelectTrigger className="h-8 text-xs w-28"><TypedSelectValue /></TypedSelectTrigger><TypedSelectContent><TypedSelectItem value="daily">{COPY.calendarPostModal.daily}</TypedSelectItem><TypedSelectItem value="weekly">{COPY.calendarPostModal.weekly}</TypedSelectItem><TypedSelectItem value="monthly">{COPY.calendarPostModal.monthly}</TypedSelectItem></TypedSelectContent></Select><span className="text-xs text-gray-400">{COPY.calendarPostModal.repeat}</span></div>{formData.recurrence_type === 'weekly' && <div className="flex gap-1 flex-wrap">{DAYS_OF_WEEK.map((day, idx) => <button key={day} onClick={() => toggleDay(idx)} className={`w-9 h-9 rounded-full text-xs font-medium transition-all ${(formData.recurrence_days ?? []).includes(idx) ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>{day}</button>)}</div>}<div><label className="text-xs text-gray-500 mb-1 block">{COPY.calendarPostModal.endDateOptional}</label><input type="date" value={formData.recurrence_end_date || ''} onChange={(e) => setFormData((f) => ({ ...f, recurrence_end_date: e.target.value }))} className="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-violet-400" /></div></div>);
 }
 
 // ---------------------------------------------------------------------------
@@ -1309,54 +1159,7 @@ ref)
 
 
   const renderMediaMenuContent = () =>
-  <div className="py-2">
-      {mediaMenuItems.map((section, index) =>
-    <div key={section.section}>
-          {index > 0 && <div className="my-2 border-t border-gray-100" />}
-          <div className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
-            {section.section}
-          </div>
-          <div className="space-y-0.5 px-2 pb-2">
-            {section.items.map((item) => {
-          const Icon = item.icon;
-          const imageSelectionDisabled =
-          Boolean(formData.video_url) ||
-          (formData.image_urls?.length ?? 0) >= MAX_POST_IMAGE_COUNT;
-          const videoSelectionDisabled = Boolean(formData.image_urls?.length);
-          const isDisabled =
-          item.mediaKind === 'image' ?
-          imageSelectionDisabled :
-          item.mediaKind === 'video' ?
-          videoSelectionDisabled :
-          false;
-          return (
-            <button
-              key={item.label}
-              type="button"
-              onClick={(e) => {
-                if (isDisabled) {
-                  e.preventDefault();
-                  return;
-                }
-                e.stopPropagation();
-                item.onSelect();
-              }}
-              disabled={isDisabled}
-              className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium transition-colors ${
-              isDisabled ?
-              'cursor-not-allowed text-gray-300' :
-              'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`
-              }>
-              
-                  <Icon className="h-4 w-4 text-gray-500" />
-                  <span>{item.label}</span>
-                </button>);
-
-        })}
-          </div>
-        </div>
-    )}
-    </div>;
+  <div className="py-2">{mediaMenuItems.map((section, index) => <div key={section.section}>{index > 0 && <div className="my-2 border-t border-gray-100" />}<div className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">{section.section}</div><div className="space-y-0.5 px-2 pb-2">{section.items.map((item) => {const Icon = item.icon; const imageSelectionDisabled = Boolean(formData.video_url) || (formData.image_urls?.length ?? 0) >= MAX_POST_IMAGE_COUNT; const videoSelectionDisabled = Boolean(formData.image_urls?.length); const isDisabled = item.mediaKind === 'image' ? imageSelectionDisabled : item.mediaKind === 'video' ? videoSelectionDisabled : false; return (<button key={item.label} type="button" onClick={(e) => {if (isDisabled) {e.preventDefault(); return;} e.stopPropagation(); item.onSelect();}} disabled={isDisabled} className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left text-[15px] font-medium transition-colors ${isDisabled ? 'cursor-not-allowed text-gray-300' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}><Icon className="h-4 w-4 text-gray-500" /><span>{item.label}</span></button>);})}</div></div>)}</div>;
 
 
   const hasSelectedMedia = Boolean((formData.image_urls?.length ?? 0) > 0 || formData.video_url);
@@ -1803,10 +1606,7 @@ ref)
     });
   };
 
-  const linkUrlError =
-  linkUrl.trim().length > 0 && !isValidHttpUrl(linkUrl.trim()) ?
-  COPY.linkInserter.urlError :
-  null;
+  const linkUrlError = linkUrl.trim().length > 0 && !isValidHttpUrl(linkUrl.trim()) ? COPY.linkInserter.urlError : null;
 
   const handleLinkInsert = () => {
     if (!isValidHttpUrl(linkUrl.trim())) return;
@@ -1832,12 +1632,8 @@ ref)
   };
 
   const isViewer = currentUser?.social_media_role === UserRole.VIEWER;
-  const isAdmin =
-  currentUser?.role === UserRole.ADMIN || currentUser?.social_media_role === UserRole.ADMIN;
-  const activePlatform =
-  PLATFORMS.find((p) => p.id === previewPlatform) ??
-  PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ??
-  PLATFORMS[0];
+  const isAdmin = currentUser?.role === UserRole.ADMIN || currentUser?.social_media_role === UserRole.ADMIN;
+  const activePlatform = PLATFORMS.find((p) => p.id === previewPlatform) ?? PLATFORMS.find((p) => p.id === PLATFORMS[0].id) ?? PLATFORMS[0];
   const overLimit = formData.caption.length > activePlatform.limit;
 
   // ---------------------------------------------------------------------------
@@ -2372,181 +2168,27 @@ ref)
               
               </div>
 
-              {/* Toolbar - with overlay button for images */}
-              <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
-                <div className="flex items-center gap-1">
-                  <Popover
-                  open={mediaMenuTarget === 'toolbar'}
-                  onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}>
-
-                    <PopoverTrigger asChild>
-                      <button
-                      type="button"
-                      className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors">
-
-                        <Plus className="w-4 h-4" />
-                        {mediaMenuTarget === 'toolbar' ?
-                      <ChevronUp className="w-3 h-3" /> :
-
-                      <ChevronDown className="w-3 h-3" />
-                      }
-                      </button>
-                    </PopoverTrigger>
-                    <TypedPopoverContent
-                    align="start"
-                    side="top"
-                    sideOffset={10}
-                    className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-                    onCloseAutoFocus={(e: Event) => e.preventDefault()}>
-
-                      {renderMediaMenuContent()}
-                    </TypedPopoverContent>
-                  </Popover>
-                  <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <button
-                      type="button"
-                      onClick={() => {
-                        if (document.activeElement === captionRef.current) {
-                          updateCaptionSelection(captionRef.current);
-                        }
-                      }}
-                      className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-
-                        <Smile className="w-5 h-5" />
-                      </button>
-                    </PopoverTrigger>
-                    <TypedPopoverContent
-                    container={containerRef.current}
-                    align="start"
-                    side="top"
-                    onFocusOutside={(event: Event & {target: EventTarget | null;}) => {
-                      if (event.target === captionRef.current) event.preventDefault();
-                    }}
-                    className="w-auto p-0 border-0 shadow-none bg-transparent">
-
-                      <EmojiPicker
-                      onEmojiClick={handleEmojiSelect}
-                      lazyLoadEmojis
-                      previewConfig={{ showPreview: false }}
-                      skinTonesDisabled />
-
-                    </TypedPopoverContent>
-                  </Popover>
-                  <HashtagPoolCreatePopover
-                  trigger={
-                  <button
-                    type="button"
-                    className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-
-                        <Hash className="w-5 h-5" />
-                      </button>
-                  }
-                  container={containerRef.current}
-                  onFocusOutside={(event: Event & {target: EventTarget | null;}) => {
-                    if (event.target === captionRef.current) event.preventDefault();
-                  }} />
-
-                  <Popover
-                  open={isLinkPopoverOpen}
-                  onOpenChange={(open) => {
-                    if (!open) {
-                      setLinkUrl('');
-                      setLinkDisplayText('');
-                    }
-                    setIsLinkPopoverOpen(open);
-                  }}>
-
-                    <PopoverTrigger asChild>
-                      <button
-                      type="button"
-                      onClick={() => {
-                        if (document.activeElement === captionRef.current) {
-                          updateCaptionSelection(captionRef.current);
-                        }
-                      }}
-                      className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                      aria-label="Insert link"
-                      title="Insert link">
-
-                        <Link2 className="w-5 h-5" />
-                      </button>
-                    </PopoverTrigger>
-                    <TypedPopoverContent
-                    container={containerRef.current}
-                    align="start"
-                    side="top"
-                    className="w-72 p-3"
-                    onFocusOutside={(event: Event & {target: EventTarget | null;}) => {
-                      if (event.target === captionRef.current) event.preventDefault();
-                    }}>
-
-                      <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
-                      <div className="flex flex-col gap-3">
-                        <div>
-                          <TypedLabel className="text-xs text-gray-500 mb-1 block">
-                            {COPY.linkInserter.urlLabel}
-                          </TypedLabel>
-                          <TypedInput
-                          value={linkUrl}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setLinkUrl(e.target.value)
-                          }
-                          placeholder={COPY.linkInserter.urlPlaceholder}
-                          className="h-8 text-sm"
-                          autoFocus
-                          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                            if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
-                              handleLinkInsert();
-                            }
-                            if (e.key === 'Escape') setIsLinkPopoverOpen(false);
-                          }} />
-
-                          <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
-                            {linkUrlError ?? ''}
-                          </p>
-                        </div>
-                        <div>
-                          <TypedLabel className="text-xs text-gray-500 mb-1 block">
-                            {COPY.linkInserter.displayTextLabel}
-                          </TypedLabel>
-                          <TypedInput
-                          value={linkDisplayText}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setLinkDisplayText(e.target.value)
-                          }
-                          placeholder={COPY.linkInserter.displayTextPlaceholder}
-                          className="h-8 text-sm"
-                          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                            if (e.key === 'Enter' && !linkUrlError && linkUrl.trim().length > 0) {
-                              handleLinkInsert();
-                            }
-                            if (e.key === 'Escape') setIsLinkPopoverOpen(false);
-                          }} />
-
-                        </div>
-                        <div className="flex justify-end pt-1">
-                          <TypedButton
-                          size="sm"
-                          onClick={handleLinkInsert}
-                          disabled={!linkUrl.trim().length || !!linkUrlError}
-                          className="bg-violet-600 hover:bg-violet-700">
-
-                            {COPY.linkInserter.insert}
-                          </TypedButton>
-                        </div>
-                      </div>
-                    </TypedPopoverContent>
-                  </Popover>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span
-                  className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}>
-
-                    {formData.caption.length}/{activePlatform.limit}
-                  </span>
-                </div>
-              </div>
+              <ComposerToolbar 
+                containerRef={containerRef}
+                captionRef={captionRef}
+                mediaMenuTarget={mediaMenuTarget}
+                setMediaMenuTarget={setMediaMenuTarget}
+                isEmojiPickerOpen={isEmojiPickerOpen}
+                setIsEmojiPickerOpen={setIsEmojiPickerOpen}
+                isLinkPopoverOpen={isLinkPopoverOpen}
+                setIsLinkPopoverOpen={setIsLinkPopoverOpen}
+                linkUrl={linkUrl}
+                setLinkUrl={setLinkUrl}
+                linkDisplayText={linkDisplayText}
+                setLinkDisplayText={setLinkDisplayText}
+                onEmojiSelect={handleEmojiSelect}
+                onLinkInsert={handleLinkInsert}
+                linkUrlError={linkUrlError}
+                onMediaMenuClick={renderMediaMenuContent}
+                formData={formData}
+                activePlatform={activePlatform}
+                updateCaptionSelection={updateCaptionSelection}
+              />
 
               {/* Hashtag pool selector */}
               {hashtagPool.length > 0 &&
