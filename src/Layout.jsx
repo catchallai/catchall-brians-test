@@ -717,7 +717,7 @@ function SidebarContent({
       return true;
     }
     // Always show Dashboard, Settings, Activity Logs, Help Center
-    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools'].includes(item.page)) {
+    if (['Dashboard', 'Settings', 'ActivityLogs', 'HelpCenter', 'SEOTools', 'SocialCalendar'].includes(item.page)) {
       return true;
     }
     // Check if feature is enabled
