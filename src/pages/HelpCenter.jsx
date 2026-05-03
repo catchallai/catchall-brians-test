@@ -58,7 +58,7 @@ const QUICK_START_STEPS = [
   { id: 1, title: 'Add Your First Contact', description: 'Go to Contacts and create your first lead or customer', link: 'Contacts', icon: Users },
   { id: 2, title: 'Create a Deal', description: 'Track a sales opportunity in your pipeline', link: 'Deals', icon: Target },
   { id: 3, title: 'Set Up Legal Matter', description: 'Add a legal matter to track a case or project', link: 'LegalMatters', icon: Scale },
-  { id: 4, title: 'Add an Employee', description: 'Create an employee record in HRIS', link: 'HRISEmployees', icon: Users },
+  { id: 4, title: 'Add an Employee', description: 'Create an employee record and view detailed profiles in HRIS', link: 'HRISEmployees', icon: Users },
   { id: 5, title: 'Set Up SEO Tracking', description: 'Add your website to monitor SEO performance', link: 'SEODashboard', icon: Globe },
   { id: 6, title: 'Start Social Listening', description: 'Track mentions of your brand across social media', link: 'SocialListening', icon: Radio },
 ];

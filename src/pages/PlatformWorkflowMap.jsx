@@ -102,7 +102,7 @@ export const MODULES = [
     description: 'Complete HR system. Employees, payroll, time off, benefits, onboarding, and the full talent lifecycle.',
     pages: [
       { id: 'hris_dashboard', label: 'HRIS Dashboard', route: '/HRISDashboard', description: 'Headcount, turnover, open reqs, and payroll cost overview.' },
-      { id: 'hris_employees', label: 'Employees', route: '/HRISEmployees', description: 'Employee directory, profiles, and document management.' },
+      { id: 'hris_employees', label: 'Employees', route: '/HRISEmployees', description: 'Employee directory with grid & list views. Click any employee to see comprehensive profile with data from all related modules (performance, talent, projects, sales, compliance).' },
       { id: 'hris_org', label: 'Org Chart', route: '/HRISOrgChart', description: 'Visual hierarchy of the organization by department.' },
       { id: 'hris_timeoff', label: 'Time Off', route: '/HRISTimeOff', description: 'Leave requests, balances, and approval workflows.' },
       { id: 'hris_payroll', label: 'Payroll', route: '/HRISPayroll', description: 'Payroll runs, salary records, and payslip generation.' },
