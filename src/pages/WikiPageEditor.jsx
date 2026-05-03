@@ -367,235 +367,237 @@ export default function WikiPageEditor() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="flex bg-white dark:bg-gray-950 overflow-hidden" style={{ height: 'calc(100vh - 3.5rem)' }}>
 
-      {/* ── Top Bar ── */}
-      <div className="shrink-0 h-12 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 z-50 flex items-center justify-between px-4 lg:pl-[calc(16rem+1rem)]">
-        {/* Left: back + breadcrumb */}
-        <div className="flex items-center gap-2 min-w-0">
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0"
-            onClick={() => navigate(`${createPageUrl('SpaceDetail')}?id=${spaceId}`)}>
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <button
-            onClick={() => setShowLeftPanel(!showLeftPanel)}
-            className="h-8 w-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 shrink-0"
-          >
-            {showLeftPanel ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
-          </button>
-          <div className={`w-6 h-6 rounded text-sm flex items-center justify-center shrink-0 ${colorClasses[space.color]}`}>{space.icon}</div>
-          <span className="text-sm text-gray-400 shrink-0">{space.name}</span>
-          {title && <><ChevronRight className="w-3 h-3 text-gray-300 shrink-0" /><span className="text-sm text-gray-700 dark:text-gray-200 truncate max-w-xs">{title}</span></>}
-        </div>
-
-        {/* Right: actions */}
-        <div className="flex items-center gap-1.5 shrink-0">
-          {pageId && page && <FreshnessIndicator page={page} />}
-          {pageId && <ActiveEditors editors={activeEditors} />}
-
-          {isLocked && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${isLockedByOther ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-              <Lock className="w-3 h-3" />
-              {isLockedByOther ? `Locked` : 'Locked by you'}
+      {/* ── Left: pages panel ── */}
+      {showLeftPanel && (
+        <div className="w-52 shrink-0 border-r border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900">
+          {/* panel header */}
+          <div className="flex items-center justify-between px-3 py-3 border-b border-gray-100 dark:border-gray-800">
+            <div className="flex items-center gap-2">
+              <button onClick={() => navigate(`${createPageUrl('SpaceDetail')}?id=${spaceId}`)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <div className={`w-5 h-5 rounded text-xs flex items-center justify-center ${colorClasses[space.color]}`}>{space.icon}</div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">{space.name}</span>
             </div>
-          )}
-
-          {saveMutation.isPending
-            ? <span className="text-xs text-gray-400 px-2">Saving…</span>
-            : saveMutation.isSuccess
-              ? <span className="text-xs text-green-500 px-2">Saved</span>
-              : null
-          }
-
-          {pageId && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleBookmark}>
-              <Star className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
-            </Button>
-          )}
-
-          <Sheet open={showComments} onOpenChange={setShowComments}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8"><MessageSquare className="w-4 h-4 text-gray-400" /></Button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:w-96 p-0 flex flex-col">
-              <CommentsPanel pageId={pageId} spaceId={spaceId} user={user} />
-            </SheetContent>
-          </Sheet>
-
-          {pageId && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowVersionHistory(true)}>
-              <Clock className="w-4 h-4 text-gray-400" />
-            </Button>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4 text-gray-400" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={generateSummary} disabled={generatingSummary}>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {generatingSummary ? 'Generating…' : 'Generate AI Summary'}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {pageId && <DropdownMenuItem onClick={duplicatePage}><Copy className="w-4 h-4 mr-2" />Duplicate page</DropdownMenuItem>}
-              {pageId && <DropdownMenuItem><PageExportMenu page={page} /></DropdownMenuItem>}
-              <DropdownMenuSeparator />
-              {/* Change summary */}
-              {pageId && (
-                <div className="px-2 py-2 space-y-1">
-                  <Label className="text-xs text-gray-500">Change summary</Label>
-                  <Textarea value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)}
-                    placeholder="What changed?" className="h-14 text-xs" />
-                </div>
-              )}
-              {/* Schedule */}
-              {(!pageId || status === 'draft') && (
-                <div className="px-2 py-2 space-y-1">
-                  <Label className="text-xs text-gray-500 flex items-center gap-1"><CalendarIcon className="w-3 h-3" />Schedule publish</Label>
-                  <Input type="datetime-local" value={scheduledPublishDate} onChange={(e) => setScheduledPublishDate(e.target.value)} className="text-xs h-8" />
-                </div>
-              )}
-              <DropdownMenuSeparator />
-              <div className="px-2 py-2 flex items-center justify-between">
-                <Label htmlFor="template-toggle" className="text-sm cursor-pointer">Mark as Template</Label>
-                <Switch id="template-toggle" checked={isTemplate} onCheckedChange={setIsTemplate} />
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowRightSidebar(!showRightSidebar)}>
-                <Link2 className="w-4 h-4 mr-2" />{showRightSidebar ? 'Hide' : 'Show'} page details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="h-8 w-32 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="draft">Draft</SelectItem>
-              {space?.enable_approval_workflow && <SelectItem value="pending_approval">Pending Approval</SelectItem>}
-            </SelectContent>
-          </Select>
-
-          <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending || !title || isLockedByOther} className="h-8 px-4">
-            Save
-          </Button>
+            <button onClick={() => setShowLeftPanel(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <PanelLeftClose className="w-4 h-4" />
+            </button>
+          </div>
+          {/* page list */}
+          <div className="flex-1 overflow-y-auto px-2 py-2">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 mb-1">Pages</p>
+            {allPages.length === 0 && <p className="text-xs text-gray-400 px-2 py-1">No pages yet</p>}
+            {allPages.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${p.id}`)}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-sm transition-colors ${
+                  p.id === pageId
+                    ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-medium'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0 opacity-50" />
+                <span className="truncate">{p.title || 'Untitled'}</span>
+                {p.is_locked && <Lock className="w-3 h-3 shrink-0 text-red-400 ml-auto" />}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* ── Body ── */}
-      <div className="flex flex-1 overflow-hidden lg:pl-64">
+      {/* ── Right: editor area ── */}
+      <div className="flex-1 flex flex-col overflow-hidden">
 
-        {/* Left pages panel */}
-        {showLeftPanel && (
-          <div className="w-56 shrink-0 border-r border-gray-100 dark:border-gray-800 overflow-y-auto bg-gray-50/60 dark:bg-gray-900/60">
-            <div className="px-3 pt-4 pb-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 mb-2">Pages</p>
-              {[...allPages, ...(pageId ? [] : [])].length === 0 && (
-                <p className="text-xs text-gray-400 px-2">No other pages</p>
-              )}
-              {allPages.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${p.id}`)}
-                  className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-sm transition-colors ${
-                    p.id === pageId
-                      ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-medium'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                  <span className="truncate">{p.title || 'Untitled'}</span>
-                  {p.is_locked && <Lock className="w-3 h-3 shrink-0 text-red-400" />}
+        {/* Editor top bar */}
+        <div className="shrink-0 h-11 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4 bg-white dark:bg-gray-950">
+          <div className="flex items-center gap-2">
+            {!showLeftPanel && (
+              <button onClick={() => setShowLeftPanel(true)} className="text-gray-400 hover:text-gray-600 transition-colors mr-1">
+                <PanelLeftOpen className="w-4 h-4" />
+              </button>
+            )}
+            {!showLeftPanel && (
+              <>
+                <button onClick={() => navigate(`${createPageUrl('SpaceDetail')}?id=${spaceId}`)} className="text-gray-400 hover:text-gray-600">
+                  <ArrowLeft className="w-4 h-4" />
                 </button>
-              ))}
-            </div>
+                <div className={`w-5 h-5 rounded text-xs flex items-center justify-center ${colorClasses[space.color]}`}>{space.icon}</div>
+                <span className="text-sm text-gray-500">{space.name}</span>
+                {title && <><ChevronRight className="w-3 h-3 text-gray-300" /><span className="text-sm text-gray-700 dark:text-gray-200 truncate max-w-xs">{title}</span></>}
+              </>
+            )}
+            {showLeftPanel && title && <span className="text-sm text-gray-500 truncate max-w-sm">{title}</span>}
           </div>
-        )}
 
-        {/* Main editor column */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-8 py-12 space-y-4">
-
-            {/* Parent Page Selection */}
-            {allPages.length > 0 && (
-              <Select value={parentPageId} onValueChange={setParentPageId}>
-                <SelectTrigger className="w-64 h-7 text-xs border-dashed">
-                  <SelectValue placeholder="No parent (root level)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={null}>No parent page</SelectItem>
-                  {allPages.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-
-            {/* Title */}
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Give this page a title"
-              className="text-4xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 h-auto py-2"
-            />
-
-            {/* Meta row: author, status, tags */}
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
-              {user && <span className="text-gray-500">By {user.full_name || user.email?.split('@')[0]}</span>}
-              <TagsEditor tags={tags} onChange={setTags} />
-            </div>
-
-            {/* AI Summary */}
-            {aiSummary && (
-              <Card className="p-3 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
-                  <p className="text-sm text-violet-700 dark:text-violet-400">{aiSummary}</p>
-                </div>
-              </Card>
-            )}
-
-            {/* Locked Warning */}
-            {isLockedByOther && (
-              <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <Lock className="w-4 h-4 text-red-500 shrink-0" />
-                <p className="text-sm text-red-700 dark:text-red-300">
-                  Locked by <strong>{page.locked_by?.split('@')[0]}</strong>{page.lock_reason ? ` — ${page.lock_reason}` : ''}
-                </p>
+          <div className="flex items-center gap-1.5">
+            {pageId && page && <FreshnessIndicator page={page} />}
+            {pageId && <ActiveEditors editors={activeEditors} />}
+            {isLocked && (
+              <div className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${isLockedByOther ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                <Lock className="w-3 h-3" />
+                {isLockedByOther ? 'Locked' : 'Locked by you'}
               </div>
             )}
+            {saveMutation.isPending && <span className="text-xs text-gray-400">Saving…</span>}
 
-            {/* Editor */}
-            <div className={`rounded-lg overflow-hidden ${isLockedByOther ? 'opacity-60 pointer-events-none' : ''}`}>
-              <ReactQuill
-                theme="snow"
-                value={content}
-                onChange={(value) => { if (!isLockedByOther) { setContent(value); setIsEditing(true); } }}
-                onBlur={() => setIsEditing(false)}
-                modules={modules}
-                readOnly={isLockedByOther}
-                className="ql-editor-full"
-                placeholder="Start writing…"
-              />
-            </div>
+            {pageId && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleBookmark}>
+                <Star className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+              </Button>
+            )}
+
+            <Sheet open={showComments} onOpenChange={setShowComments}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><MessageSquare className="w-4 h-4 text-gray-400" /></Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:w-96 p-0 flex flex-col">
+                <CommentsPanel pageId={pageId} spaceId={spaceId} user={user} />
+              </SheetContent>
+            </Sheet>
+
+            {pageId && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowVersionHistory(true)}>
+                <Clock className="w-4 h-4 text-gray-400" />
+              </Button>
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4 text-gray-400" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={generateSummary} disabled={generatingSummary}>
+                  <Sparkles className="w-4 h-4 mr-2" />{generatingSummary ? 'Generating…' : 'Generate AI Summary'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {pageId && <DropdownMenuItem onClick={duplicatePage}><Copy className="w-4 h-4 mr-2" />Duplicate page</DropdownMenuItem>}
+                {pageId && page && <DropdownMenuItem asChild><div><PageExportMenu page={page} /></div></DropdownMenuItem>}
+                <DropdownMenuSeparator />
+                {pageId && (
+                  <div className="px-2 py-2 space-y-1">
+                    <Label className="text-xs text-gray-500">Change summary</Label>
+                    <Textarea value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)} placeholder="What changed?" className="h-14 text-xs" />
+                  </div>
+                )}
+                {(!pageId || status === 'draft') && (
+                  <div className="px-2 py-2 space-y-1">
+                    <Label className="text-xs text-gray-500 flex items-center gap-1"><CalendarIcon className="w-3 h-3" />Schedule publish</Label>
+                    <Input type="datetime-local" value={scheduledPublishDate} onChange={(e) => setScheduledPublishDate(e.target.value)} className="text-xs h-8" />
+                  </div>
+                )}
+                <DropdownMenuSeparator />
+                <div className="px-2 py-2 flex items-center justify-between">
+                  <Label htmlFor="template-toggle" className="text-sm cursor-pointer">Mark as Template</Label>
+                  <Switch id="template-toggle" checked={isTemplate} onCheckedChange={setIsTemplate} />
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setShowRightSidebar(!showRightSidebar)}>
+                  <Link2 className="w-4 h-4 mr-2" />{showRightSidebar ? 'Hide' : 'Show'} page details
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="h-8 w-32 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                {space?.enable_approval_workflow && <SelectItem value="pending_approval">Pending Approval</SelectItem>}
+              </SelectContent>
+            </Select>
+
+            <Button size="sm" onClick={handleSave} disabled={saveMutation.isPending || !title || isLockedByOther} className="h-8 px-4">
+              Save
+            </Button>
           </div>
         </div>
 
-        {/* Right panel — page details */}
-        {showRightSidebar && pageId && (
-          <div className="w-72 shrink-0 border-l border-gray-100 dark:border-gray-800 overflow-y-auto p-5 space-y-6">
-            <PageLockPanel page={page} pageId={pageId} user={user} />
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-              <PageWatchersPanel pageId={pageId} user={user} />
-            </div>
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
-              <RelatedPagesPanel currentPage={page} />
+        {/* Scrollable editor + optional right panel */}
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-3xl mx-auto px-12 pt-10 pb-24 space-y-4">
+
+              {/* Parent Page Selection */}
+              {allPages.length > 0 && (
+                <Select value={parentPageId} onValueChange={setParentPageId}>
+                  <SelectTrigger className="w-64 h-7 text-xs border-dashed">
+                    <SelectValue placeholder="No parent (root level)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>No parent page</SelectItem>
+                    {allPages.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {/* Title */}
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Give this page a title"
+                className="text-4xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 h-auto py-1"
+              />
+
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
+                {user && <span className="text-gray-500 text-xs">By {user.full_name || user.email?.split('@')[0]}</span>}
+                <TagsEditor tags={tags} onChange={setTags} />
+              </div>
+
+              {/* AI Summary */}
+              {aiSummary && (
+                <Card className="p-3 bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
+                    <p className="text-sm text-violet-700 dark:text-violet-400">{aiSummary}</p>
+                  </div>
+                </Card>
+              )}
+
+              {/* Locked Warning */}
+              {isLockedByOther && (
+                <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                  <Lock className="w-4 h-4 text-red-500 shrink-0" />
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    Locked by <strong>{page.locked_by?.split('@')[0]}</strong>{page.lock_reason ? ` — ${page.lock_reason}` : ''}
+                  </p>
+                </div>
+              )}
+
+              {/* Editor */}
+              <div className={isLockedByOther ? 'opacity-60 pointer-events-none' : ''}>
+                <ReactQuill
+                  theme="snow"
+                  value={content}
+                  onChange={(value) => { if (!isLockedByOther) { setContent(value); setIsEditing(true); } }}
+                  onBlur={() => setIsEditing(false)}
+                  modules={modules}
+                  readOnly={isLockedByOther}
+                  className="ql-editor-full"
+                  placeholder="Start writing…"
+                />
+              </div>
             </div>
           </div>
-        )}
+
+          {/* Right panel */}
+          {showRightSidebar && pageId && (
+            <div className="w-72 shrink-0 border-l border-gray-100 dark:border-gray-800 overflow-y-auto p-5 space-y-6">
+              <PageLockPanel page={page} pageId={pageId} user={user} />
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                <PageWatchersPanel pageId={pageId} user={user} />
+              </div>
+              <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+                <RelatedPagesPanel currentPage={page} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Version History Modal */}
