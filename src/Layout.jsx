@@ -261,6 +261,7 @@ const navigation = [
   { name: 'divider', label: 'Support', collapsible: true },
   { name: 'Settings', icon: Settings, page: 'Settings' },
   { name: 'Company Settings', icon: Building2, page: 'CompanySettings' },
+  { name: 'Features', icon: Zap, page: 'Features' },
   { name: 'Integrations', icon: Globe, page: 'Integrations' },
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },

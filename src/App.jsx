@@ -45,6 +45,7 @@ import SlideDeckManagement from './pages/SlideDeckManagement';
 import BrandGuidelineManagement from './pages/BrandGuidelineManagement';
 import SocialCalendar from './pages/SocialCalendar';
 import Integrations from './pages/Integrations';
+import Features from './pages/Features';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { NavigationGuardProvider } from '@/lib/NavigationGuardContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -182,6 +183,7 @@ const AuthenticatedApp = () => {
       <Route path="/BrandGuidelineManagement" element={<LayoutWrapper currentPageName="BrandGuidelineManagement"><BrandGuidelineManagement /></LayoutWrapper>} />
       <Route path="/SocialCalendar" element={<LayoutWrapper currentPageName="SocialCalendar"><SocialCalendar /></LayoutWrapper>} />
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
+      <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>

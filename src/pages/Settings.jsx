@@ -33,7 +33,6 @@ import {
   Lock,
   Activity,
 } from 'lucide-react';
-import FeatureManager from '@/components/settings/FeatureManager';
 import AutoSyncSettings from '@/components/settings/AutoSyncSettings';
 import RolePermissionsManager from '@/components/settings/RolePermissionsManager';
 import UserManagement from '@/components/settings/UserManagement';
@@ -57,19 +56,13 @@ const SETTINGS_SECTIONS = [
     ],
   },
   {
-    group: 'Platform',
-    tabs: [
-      { id: 'features', label: 'Features', icon: ToggleRight },
-      { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
-    ],
-  },
-  {
     group: 'Administration',
     tabs: [
       { id: 'tracking', label: 'Tracking', icon: Activity },
       { id: 'rbac', label: 'RBAC', icon: Lock },
       { id: 'users', label: 'Team Users', icon: User },
       { id: 'data', label: 'Data Management', icon: Database },
+      { id: 'autosync', label: 'Auto-Sync', icon: RefreshCw },
       { id: 'ai', label: 'AI Settings', icon: Zap },
     ],
   },
@@ -524,11 +517,6 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Features Tab */}
-        <TabsContent value="features">
-          <FeatureManager />
         </TabsContent>
 
         {/* Auto-Sync Tab */}
