@@ -1,36 +1,26 @@
 import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Search, Filter } from 'lucide-react';
+import { Search, ChevronDown, MoreVertical } from 'lucide-react';
 import { DEPARTMENT_PERMISSIONS, DEPARTMENTS } from '@/lib/departmentPermissions';
 
 const DEPARTMENT_COLORS = {
-  'Business Dev': 'bg-blue-500',
-  'Sales': 'bg-cyan-500',
-  'Marketing': 'bg-purple-500',
-  'Human Resources': 'bg-pink-500',
-  'Legal': 'bg-red-500',
-  'Finance': 'bg-green-500',
-  'Engineering': 'bg-indigo-500',
-  'Information Technology': 'bg-orange-500',
-  'Admin': 'bg-gray-700',
-  'SuperAdmin': 'bg-black',
+  'Business Dev': '#3b82f6',
+  'Sales': '#06b6d4',
+  'Marketing': '#a855f7',
+  'Human Resources': '#ec4899',
+  'Legal': '#ef4444',
+  'Finance': '#22c55e',
+  'Engineering': '#6366f1',
+  'Information Technology': '#f97316',
+  'Admin': '#64748b',
+  'SuperAdmin': '#000000',
 };
 
 export default function TeamAccessMatrix() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterDept, setFilterDept] = useState('all');
+  const [expandedUser, setExpandedUser] = useState(null);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['team-users'],
@@ -40,7 +30,7 @@ export default function TeamAccessMatrix() {
     },
   });
 
-  // Get unique modules from all departments
+  // Get all unique modules across all departments
   const allModules = useMemo(() => {
     const modules = new Set();
     Object.values(DEPARTMENT_PERMISSIONS).forEach((deptModules) => {
@@ -49,16 +39,15 @@ export default function TeamAccessMatrix() {
     return Array.from(modules).sort();
   }, []);
 
-  // Filter users
+  // Filter users by search
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesSearch =
         user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDept = filterDept === 'all' || user.department === filterDept;
-      return matchesSearch && matchesDept;
+      return matchesSearch;
     });
-  }, [users, searchQuery, filterDept]);
+  }, [users, searchQuery]);
 
   // Check if user has access to a module
   const hasAccess = (user, moduleName) => {
@@ -68,152 +57,133 @@ export default function TeamAccessMatrix() {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="h-64 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
-      </div>
-    );
+    return <div className="p-6 bg-gray-100 h-64 rounded animate-pulse" />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800">
       {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Members & Access</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          View which team members have access to each module based on their department
-        </p>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Search members by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={filterDept} onValueChange={setFilterDept}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {DEPARTMENTS.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Matrix View */}
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-gray-50 dark:bg-gray-800">
-                <th className="sticky left-0 bg-gray-50 dark:bg-gray-800 z-10 p-4 text-left font-semibold text-sm w-48">
-                  Member ({filteredUsers.length})
-                </th>
-                {allModules.map((module) => (
-                  <th
-                    key={module}
-                    className="p-3 text-xs font-semibold text-center whitespace-nowrap min-w-24"
-                  >
-                    <div className="flex flex-col items-center">
-                      <span>{module.split(' ')[0]}</span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={allModules.length + 1} className="p-6 text-center text-gray-500">
-                    No members found
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    {/* Member Cell */}
-                    <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 p-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback
-                            className={`${DEPARTMENT_COLORS[user.department] || 'bg-gray-400'} text-white text-sm font-bold`}
-                          >
-                            {user.full_name?.charAt(0).toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{user.full_name}</p>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {user.department || 'Unassigned'}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Access Matrix */}
-                    {allModules.map((module) => (
-                      <td key={`${user.id}-${module}`} className="p-3 text-center">
-                        <div className="flex justify-center">
-                          {hasAccess(user, module) ? (
-                            <div className="w-3 h-3 rounded-full bg-blue-500" title={`${user.full_name} has access to ${module}`} />
-                          ) : (
-                            <div
-                              className="w-3 h-3 rounded-full border-2 border-gray-300 dark:border-gray-600"
-                              title={`${user.full_name} does not have access to ${module}`}
-                            />
-                          )}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Legend */}
-      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <CardHeader>
-          <CardTitle className="text-base">What each symbol means</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
-            <span>Member has access to this module (based on their department assignment)</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full border-2 border-gray-300" />
-            <span>Member does not have access to this module</span>
-          </div>
-          <div className="pt-2 border-t border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Access is automatically assigned based on department membership. To change a member's access, update their department assignment.
+      <div className="border-b border-gray-200 dark:border-gray-800 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Members & access</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Manage team member permissions and access levels
             </p>
           </div>
-        </CardContent>
-      </Card>
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            {filteredUsers.length} members
+          </span>
+        </div>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Search members..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-9"
+          />
+        </div>
+      </div>
+
+      {/* Matrix */}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+              <th className="sticky left-0 bg-gray-50 dark:bg-gray-800/50 z-10 px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300">
+                Name
+              </th>
+              <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 min-w-20">
+                Role
+              </th>
+              {allModules.map((module) => (
+                <th
+                  key={module}
+                  className="px-4 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-20"
+                >
+                  {module}
+                </th>
+              ))}
+              <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 w-12" />
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={allModules.length + 3}
+                  className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
+                >
+                  No members found
+                </td>
+              </tr>
+            ) : (
+              filteredUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors"
+                >
+                  {/* Name */}
+                  <td className="sticky left-0 bg-white dark:bg-gray-900 z-10 px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
+                        style={{ backgroundColor: DEPARTMENT_COLORS[user.department] || '#64748b' }}
+                      >
+                        {user.full_name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {user.full_name}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Role/Department */}
+                  <td className="px-4 py-4 text-center">
+                    <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                      {user.department || 'Unassigned'}
+                    </span>
+                  </td>
+
+                  {/* Access Dots */}
+                  {allModules.map((module) => (
+                    <td key={`${user.id}-${module}`} className="px-4 py-4 text-center">
+                      <div className="flex justify-center">
+                        {hasAccess(user, module) ? (
+                          <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                        ) : (
+                          <div className="w-2.5 h-2.5 rounded-full border-1.5 border-gray-300 dark:border-gray-600" />
+                        )}
+                      </div>
+                    </td>
+                  ))}
+
+                  {/* Actions */}
+                  <td className="px-4 py-4 text-center">
+                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                      <MoreVertical className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Legend */}
+      <div className="border-t border-gray-200 dark:border-gray-800 px-6 py-4 bg-gray-50 dark:bg-gray-800/50">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-blue-500 mr-2" />
+          Blue dot = has access | Empty circle = no access
+        </p>
+      </div>
     </div>
   );
 }
