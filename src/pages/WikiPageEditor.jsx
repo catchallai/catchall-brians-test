@@ -53,24 +53,11 @@ import PageLockPanel from '@/components/wiki/PageLockPanel';
 const modules = {
   toolbar: {
     container: [
-      // Headers
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      // Basic formatting
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      // Lists
       [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      // Colors
-      [{ color: [] }, { background: [] }],
-      // Alignment
-      [{ align: [] }],
-      // Blocks
       ['blockquote', 'code-block'],
-      // Links and media
-      ['link', 'image', 'video'],
-      // Script
-      [{ script: 'sub' }, { script: 'super' }],
-      // Clean
+      ['link', 'image'],
       ['clean'],
     ],
   },
@@ -528,8 +515,8 @@ export default function WikiPageEditor() {
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Page title..."
-            className="text-4xl font-bold border-0 px-0 focus-visible:ring-0"
+            placeholder="Untitled page"
+            className="text-4xl font-bold border-0 px-0 shadow-none focus-visible:ring-0 bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700"
           />
 
           {/* Change Summary */}
@@ -601,7 +588,7 @@ export default function WikiPageEditor() {
           )}
 
           {/* Rich Text Editor */}
-          <div className={`min-h-[600px] rounded-lg border overflow-hidden ${isLockedByOther ? 'border-red-200 dark:border-red-800 opacity-60 pointer-events-none' : 'border-gray-200 dark:border-gray-800'}`}>
+          <div className={`min-h-[600px] rounded-xl overflow-hidden ${isLockedByOther ? 'border border-red-200 dark:border-red-800 opacity-60 pointer-events-none' : 'border border-gray-100 dark:border-gray-800/50'}`}>
             <ReactQuill
               theme="snow"
               value={content}

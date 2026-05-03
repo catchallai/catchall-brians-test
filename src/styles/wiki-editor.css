@@ -3,16 +3,39 @@
 .ql-toolbar {
   border: none;
   border-bottom: 1px solid hsl(var(--border));
-  background: hsl(var(--background));
-  padding: 12px;
-  gap: 4px;
+  background: hsl(var(--muted) / 0.4);
+  padding: 8px 16px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 2px;
 }
 
 .ql-toolbar.ql-snow {
   box-shadow: none;
+}
+
+.ql-toolbar.ql-snow .ql-formats {
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.ql-toolbar.ql-snow button {
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.ql-toolbar.ql-snow button:hover {
+  background: hsl(var(--muted));
+}
+
+.ql-toolbar.ql-snow button.ql-active {
+  background: hsl(var(--primary) / 0.12);
 }
 
 .ql-container {
@@ -22,12 +45,13 @@
 }
 
 .ql-editor {
-  padding: 24px;
+  padding: 32px 40px;
   min-height: 500px;
-  max-height: 800px;
   overflow-y: auto;
   background: hsl(var(--background));
   color: hsl(var(--foreground));
+  line-height: 1.75;
+  letter-spacing: 0.01em;
 }
 
 .ql-editor.ql-blank::before {
