@@ -68,7 +68,7 @@ import useUnsavedChangesGuard from '@/components/hooks/useUnsavedChangesGuard';
 import { useNavigationGuard } from '@/lib/NavigationGuardContext';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import MediaLibraryModal from './MediaLibraryModal';
-import ImageCropPanel, { type TransformOp } from './ImageCropPanel';
+import ImageCropPanel from './ImageCropPanel';
 import { toast } from 'sonner';
 import { PostStatus, PostPriority, AllChannelsTab, UserRole } from '@/types/enums';
 import COPY from '@/lib/copy';
@@ -93,8 +93,8 @@ import { arraysEqual, setsEqual } from '@/utils/hashtagUtils';
 import {
   renderApprovalNotificationEmail,
   APPROVAL_EMAIL_MAX_ROWS,
-  type ApprovalEmailPendingItem } from
-'@/lib/emails/approvalNotification';
+  ApprovalEmailPendingItem } from
+  '@/lib/emails/approvalNotification';
 import PostStatusChip from '@/components/social/PostStatusChip';
 import { normalizeReviewers } from '@/utils/reviewers';
 import type { ReviewerEntry } from '@/types/reviewers';
