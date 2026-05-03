@@ -173,11 +173,66 @@ export default function Spaces() {
 
         {/* Content Area */}
         {!selectedSpace ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <FolderOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Select a space</h2>
-              <p className="text-sm text-gray-500">Choose a space from the sidebar to get started</p>
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="max-w-4xl">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Spaces Dashboard</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-8">Overview of your documentation spaces</p>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-4 mb-8">
+                {/* Pages Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Pages</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{pages.length}</p>
+                    </div>
+                    <FileText className="w-8 h-8 text-blue-500" />
+                  </div>
+                </div>
+
+                {/* Active Users Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Active Users</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{spaces.length}</p>
+                    </div>
+                    <Users className="w-8 h-8 text-green-500" />
+                  </div>
+                </div>
+
+                {/* Contributors Card */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Contributors</p>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">{new Set(pages.map((p) => p.created_by)).size}</p>
+                    </div>
+                    <Users className="w-8 h-8 text-purple-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Pages */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Pages</h2>
+                {pages.length === 0 ? (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No pages yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {pages.slice(0, 5).map((page) => (
+                      <div key={page.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{page.title || 'Untitled'}</span>
+                        </div>
+                        <span className="text-xs text-gray-500">{new Date(page.created_date).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ) : (
