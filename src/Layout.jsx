@@ -659,7 +659,7 @@ function SidebarContent({
       Sales: true,
       'Customer Success': true,
       SEO: true,
-      Social: true,
+      Social: false,
       Web: true,
       'Team Collaboration': true,
       Documentation: true,
