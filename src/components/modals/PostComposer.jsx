@@ -4,7 +4,7 @@ import {
   useRef,
   forwardRef,
   useImperativeHandle,
-  type ReactNode } from
+  ReactNode } from
 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHashtagPoolToggle } from '@/components/hooks/useHashtagPoolToggle';
@@ -2372,18 +2372,18 @@ ref)
               
               </div>
 
-              {/* Toolbar */}
+              {/* Toolbar - with overlay button for images */}
               <div className="flex items-center justify-between px-6 py-2.5 border-t border-gray-100 dark:border-gray-800 mt-1">
                 <div className="flex items-center gap-1">
                   <Popover
                   open={mediaMenuTarget === 'toolbar'}
                   onOpenChange={(open) => setMediaMenuTarget(open ? 'toolbar' : null)}>
-                  
+
                     <PopoverTrigger asChild>
                       <button
                       type="button"
                       className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1.5 text-sm transition-colors">
-                      
+
                         <Plus className="w-4 h-4" />
                         {mediaMenuTarget === 'toolbar' ?
                       <ChevronUp className="w-3 h-3" /> :
@@ -2398,7 +2398,7 @@ ref)
                     sideOffset={10}
                     className="w-[250px] rounded-xl border border-gray-200 bg-white p-0 shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
                     onCloseAutoFocus={(e: Event) => e.preventDefault()}>
-                    
+
                       {renderMediaMenuContent()}
                     </TypedPopoverContent>
                   </Popover>
@@ -2412,7 +2412,7 @@ ref)
                         }
                       }}
                       className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                      
+
                         <Smile className="w-5 h-5" />
                       </button>
                     </PopoverTrigger>
@@ -2424,13 +2424,13 @@ ref)
                       if (event.target === captionRef.current) event.preventDefault();
                     }}
                     className="w-auto p-0 border-0 shadow-none bg-transparent">
-                    
+
                       <EmojiPicker
                       onEmojiClick={handleEmojiSelect}
                       lazyLoadEmojis
                       previewConfig={{ showPreview: false }}
                       skinTonesDisabled />
-                    
+
                     </TypedPopoverContent>
                   </Popover>
                   <HashtagPoolCreatePopover
@@ -2438,7 +2438,7 @@ ref)
                   <button
                     type="button"
                     className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                    
+
                         <Hash className="w-5 h-5" />
                       </button>
                   }
@@ -2446,7 +2446,7 @@ ref)
                   onFocusOutside={(event: Event & {target: EventTarget | null;}) => {
                     if (event.target === captionRef.current) event.preventDefault();
                   }} />
-                
+
                   <Popover
                   open={isLinkPopoverOpen}
                   onOpenChange={(open) => {
@@ -2456,7 +2456,7 @@ ref)
                     }
                     setIsLinkPopoverOpen(open);
                   }}>
-                  
+
                     <PopoverTrigger asChild>
                       <button
                       type="button"
@@ -2468,7 +2468,7 @@ ref)
                       className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                       aria-label="Insert link"
                       title="Insert link">
-                      
+
                         <Link2 className="w-5 h-5" />
                       </button>
                     </PopoverTrigger>
@@ -2480,7 +2480,7 @@ ref)
                     onFocusOutside={(event: Event & {target: EventTarget | null;}) => {
                       if (event.target === captionRef.current) event.preventDefault();
                     }}>
-                    
+
                       <p className="text-sm font-semibold mb-3">{COPY.linkInserter.title}</p>
                       <div className="flex flex-col gap-3">
                         <div>
@@ -2501,7 +2501,7 @@ ref)
                             }
                             if (e.key === 'Escape') setIsLinkPopoverOpen(false);
                           }} />
-                        
+
                           <p className="text-xs text-red-500 mt-1 min-h-[2rem]">
                             {linkUrlError ?? ''}
                           </p>
@@ -2523,7 +2523,7 @@ ref)
                             }
                             if (e.key === 'Escape') setIsLinkPopoverOpen(false);
                           }} />
-                        
+
                         </div>
                         <div className="flex justify-end pt-1">
                           <TypedButton
@@ -2531,7 +2531,7 @@ ref)
                           onClick={handleLinkInsert}
                           disabled={!linkUrl.trim().length || !!linkUrlError}
                           className="bg-violet-600 hover:bg-violet-700">
-                          
+
                             {COPY.linkInserter.insert}
                           </TypedButton>
                         </div>
@@ -2542,7 +2542,7 @@ ref)
                 <div className="flex items-center gap-3">
                   <span
                   className={`text-sm font-medium ${overLimit ? 'text-red-500' : 'text-gray-400'}`}>
-                  
+
                     {formData.caption.length}/{activePlatform.limit}
                   </span>
                 </div>
