@@ -4,11 +4,12 @@
   border: none;
   border-bottom: 1px solid hsl(var(--border));
   background: hsl(var(--muted) / 0.4);
-  padding: 8px 16px;
+  padding: 6px 12px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2px;
+  overflow-x: auto;
 }
 
 .ql-toolbar.ql-snow {

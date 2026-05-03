@@ -58,11 +58,11 @@ import PageLockPanel from '@/components/wiki/PageLockPanel';
 const modules = {
   toolbar: {
     container: [
-      [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ font: [] }, { header: [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'underline', 'italic', { color: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }, { align: [] }],
       ['blockquote', 'code-block'],
-      ['link', 'image'],
+      ['link', 'image', 'video', 'formula'],
       ['clean'],
     ],
   },
