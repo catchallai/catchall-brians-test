@@ -1,4 +1,6 @@
-import React, { useMemo, useState, Fragment } from 'react';
+import React, { useMemo, useState, useEffect, Fragment } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /* Data                                                                       */
@@ -91,15 +93,11 @@ function defaultPerms() {
   return perms;
 }
 
-const USERS = [
-  { id: 'u1', name: 'Brian Gibbs',     email: 'briangibbs7@syberjet.com',  role: 'admin',  status: 'active',  lastActive: '2m ago',    avatarColor: 'bg-violet-500' },
-  { id: 'u2', name: 'Maya Patel',      email: 'maya.patel@syberjet.com',   role: 'editor', status: 'active',  lastActive: '1h ago',    avatarColor: 'bg-blue-500'   },
-  { id: 'u3', name: 'Daniel Cho',      email: 'daniel.cho@syberjet.com',   role: 'editor', status: 'active',  lastActive: '4h ago',    avatarColor: 'bg-cyan-500'   },
-  { id: 'u4', name: 'Lena Vasquez',    email: 'lena.v@syberjet.com',       role: 'viewer', status: 'active',  lastActive: 'Yesterday', avatarColor: 'bg-pink-500'   },
-  { id: 'u5', name: 'Theo Klein',      email: 'theo.klein@syberjet.com',   role: 'viewer', status: 'active',  lastActive: '3d ago',    avatarColor: 'bg-orange-500' },
-  { id: 'u6', name: 'Priya Ramesh',    email: 'priya.r@syberjet.com',      role: 'user',   status: 'pending', lastActive: '—',         avatarColor: 'bg-emerald-500' },
-  { id: 'u7', name: 'Marcus Holloway', email: 'marcus.h@syberjet.com',     role: 'user',   status: 'active',  lastActive: '6d ago',    avatarColor: 'bg-teal-500'   },
-];
+const getAvatarColor = (email) => {
+  const colors = ['bg-violet-500', 'bg-blue-500', 'bg-cyan-500', 'bg-pink-500', 'bg-orange-500', 'bg-emerald-500', 'bg-teal-500'];
+  const hash = email.split('').reduce((h, c) => h + c.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
 
 const STATUS_TONE = {
   active:    { dot: 'bg-emerald-500', text: 'text-emerald-700' },
@@ -278,11 +276,38 @@ function PageHeader() {
 /* ────────────────────────────────────────────────────────────────────────── */
 
 function MembersSection() {
-  const [users] = useState(USERS);
+  const queryClient = useQueryClient();
   const [query, setQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [selected, setSelected] = useState(() => new Set());
   const [sort, setSort] = useState({ key: 'name', dir: 'asc' });
+
+  // Fetch users from User entity
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const list = await base44.entities.User.list();
+      return list.map(u => ({
+        id: u.id,
+        name: u.full_name || u.email.split('@')[0],
+        email: u.email,
+        role: u.role || 'user',
+        status: u.status || 'active',
+        lastActive: u.lastActive || '—',
+        avatarColor: getAvatarColor(u.email),
+      }));
+    },
+  });
+
+  // Mutation to update user role
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, role }) => {
+      await base44.entities.User.update(userId, { role });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
 
   const counts = useMemo(() => {
     const c = { total: users.length, admin: 0, editor: 0, viewer: 0, user: 0, pending: 0, active: 0 };
@@ -419,11 +444,12 @@ function MembersSection() {
                 </div>
               </div>
               <div>
-                <span className={`inline-flex items-center gap-1.5 h-[22px] px-2 rounded-md border text-[12px] font-medium
-                                  ${tone.bg} ${tone.text} ${tone.border}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${tone.dot}`}/>
-                  {ROLES.find(r => r.id === u.role).label}
-                </span>
+                <select value={u.role} onChange={(e) => updateRoleMutation.mutate({ userId: u.id, role: e.target.value })}
+                  className={`inline-flex items-center gap-1.5 h-[22px] px-2 rounded-md border text-[12px] font-medium appearance-none cursor-pointer
+                              ${tone.bg} ${tone.text} ${tone.border} bg-no-repeat pr-6 bg-right`}
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23${tone.text.split('-')[1]}' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")` }}>
+                  {ROLES.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
+                </select>
               </div>
               <div className={`flex items-center gap-1.5 text-[13px] capitalize ${stat.text}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${stat.dot}`}/>
@@ -456,12 +482,36 @@ function MembersSection() {
 /* ────────────────────────────────────────────────────────────────────────── */
 
 function RBACMatrix({ perms, setPerms }) {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(() => Object.fromEntries(SECTION_GROUPS.map(g => [g.id, true])));
   const [activeRole, setActiveRole] = useState('admin');
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(true);
   const filteredGroups = useFilteredGroups(query);
   const visibleRoles = showAll ? ROLES : ROLES.filter(r => r.id === activeRole);
+
+  // Mutation to save permissions
+  const savePermsMutation = useMutation({
+    mutationFn: async (permsData) => {
+      const entries = [];
+      for (const [role, sections] of Object.entries(permsData)) {
+        for (const [sectionId, actions] of Object.entries(sections)) {
+          entries.push({ role, section_id: sectionId, actions });
+        }
+      }
+      for (const entry of entries) {
+        const existing = await base44.entities.RolePermission.filter({ role: entry.role, section_id: entry.section_id });
+        if (existing.length > 0) {
+          await base44.entities.RolePermission.update(existing[0].id, entry);
+        } else {
+          await base44.entities.RolePermission.create(entry);
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['permissions'] });
+    },
+  });
 
   const toggleCell = (role, sectionId, action) => {
     setPerms(prev => {
@@ -470,6 +520,7 @@ function RBACMatrix({ perms, setPerms }) {
       next[role][sectionId][action] = !cur;
       if (!cur && action !== 'view') next[role][sectionId].view = true;
       if (cur && action === 'view') ACTIONS.forEach(a => { next[role][sectionId][a.id] = false; });
+      savePermsMutation.mutate(next);
       return next;
     });
   };
@@ -477,6 +528,7 @@ function RBACMatrix({ perms, setPerms }) {
     setPerms(prev => {
       const next = structuredClone(prev);
       group.sections.forEach(s => ACTIONS.forEach(a => { next[role][s.id][a.id] = value; }));
+      savePermsMutation.mutate(next);
       return next;
     });
   };

@@ -1,0 +1,27 @@
+{
+  "name": "RolePermission",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": ["admin", "editor", "viewer", "user"],
+      "description": "Role identifier"
+    },
+    "section_id": {
+      "type": "string",
+      "description": "Section/module ID (e.g., contacts, deals, seoDashboard)"
+    },
+    "actions": {
+      "type": "object",
+      "properties": {
+        "view": { "type": "boolean" },
+        "create": { "type": "boolean" },
+        "edit": { "type": "boolean" },
+        "delete": { "type": "boolean" },
+        "export": { "type": "boolean" }
+      },
+      "description": "Permissions for each action"
+    }
+  },
+  "required": ["role", "section_id", "actions"]
+}
