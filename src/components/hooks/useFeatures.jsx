@@ -67,6 +67,11 @@ const DEFAULT_FEATURES = {
   dataRooms: true,
   docuTrace: true,
   aerospaceScanner: true,
+  // Web
+  contactForms: true,
+  webCrawler: true,
+  trafficAnalytics: true,
+  webAnalyticsAdvanced: true,
 };
 
 export function useFeatures() {
@@ -123,6 +128,7 @@ export const FEATURE_PAGE_MAP = {
   listings: 'Listings',
   pressMonitoring: 'PressMonitoring',
   webCrawler: 'WebCrawler',
+  webAnalyticsAdvanced: 'WebAnalyticsAdvanced',
   trafficAnalytics: 'TrafficAnalytics',
   visitorProfiles: 'VisitorProfiles',
   userJourneyMapping: 'TrafficAnalytics',
