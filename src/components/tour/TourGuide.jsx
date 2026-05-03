@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import 'shepherd.js/dist/shepherd.css';
+import 'shepherd.js/dist/css/shepherd.css';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
 import { useProductTour } from '@/hooks/useProductTour';
