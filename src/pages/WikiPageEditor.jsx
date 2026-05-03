@@ -57,6 +57,7 @@ import PageLockPanel from '@/components/wiki/PageLockPanel';
 import { useCollabEditor } from '@/components/wiki/useCollabEditor';
 import ReadingProgressBar from '@/components/wiki/ReadingProgressBar';
 import TableOfContents from '@/components/wiki/TableOfContents';
+import ClassificationBadge from '@/components/wiki/ClassificationBadge';
 
 const modules = {
   toolbar: {
@@ -94,6 +95,7 @@ export default function WikiPageEditor() {
   const [showRightSidebar, setShowRightSidebar] = useState(false);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [scheduledPublishDate, setScheduledPublishDate] = useState('');
+  const [classification, setClassification] = useState('internal');
   const editorScrollRef = useRef(null);
 
 
@@ -171,6 +173,7 @@ export default function WikiPageEditor() {
       setAiSummary(page.ai_summary || '');
       setTags(page.tags || []);
       setIsTemplate(page.template || false);
+      setClassification(page.classification || 'internal');
     }
   }, [page]);
 
@@ -323,6 +326,7 @@ export default function WikiPageEditor() {
       ai_summary: aiSummary,
       template: isTemplate,
       tags,
+      classification,
       scheduled_publish_date: scheduledPublishDate || null,
     });
   };
@@ -582,11 +586,12 @@ export default function WikiPageEditor() {
               />
 
               {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
-                {user && <span className="text-gray-500 text-xs">By {user.full_name || user.email?.split('@')[0]}</span>}
-                {content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} />}
-                <TagsEditor tags={tags} onChange={setTags} />
-              </div>
+               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 border-b border-gray-100 dark:border-gray-800 pb-4">
+                 {user && <span className="text-gray-500 text-xs">By {user.full_name || user.email?.split('@')[0]}</span>}
+                 <ClassificationBadge classification={classification} onChange={setClassification} editable={!isLockedByOther} />
+                 {content && <ReadingProgressBar content={content} scrollRef={editorScrollRef} />}
+                 <TagsEditor tags={tags} onChange={setTags} />
+               </div>
 
               {/* AI Summary */}
               {aiSummary && (

@@ -38,6 +38,17 @@
       "default": "published",
       "description": "Page status"
     },
+    "classification": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "classified",
+        "external",
+        "public"
+      ],
+      "default": "internal",
+      "description": "Classification level of the page"
+    },
     "template": {
       "type": "boolean",
       "default": false,
