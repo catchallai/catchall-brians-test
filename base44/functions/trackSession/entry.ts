@@ -25,8 +25,16 @@ Deno.serve(async (req) => {
       }).catch(() => {});
     }
 
+    // Sanitize events: ensure element_selector is always a string
+    const sanitizedEvents = events.map(event => ({
+      ...event,
+      element_selector: event.element_selector && typeof event.element_selector === 'object'
+        ? JSON.stringify(event.element_selector)
+        : (typeof event.element_selector === 'string' ? event.element_selector : undefined),
+    }));
+
     // Bulk insert all events using service role
-    await base44.asServiceRole.entities.SessionEvent.bulkCreate(events);
+    await base44.asServiceRole.entities.SessionEvent.bulkCreate(sanitizedEvents);
 
     return Response.json({
       success: true,
