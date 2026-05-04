@@ -13,8 +13,11 @@ Deno.serve(async (req) => {
 
     const { type } = await req.json();
 
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('github');
+
     const headers = {
       'Accept': 'application/vnd.github+json',
+      'Authorization': `Bearer ${accessToken}`,
       'X-GitHub-Api-Version': '2022-11-28',
     };
 
