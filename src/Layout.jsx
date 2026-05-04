@@ -741,6 +741,7 @@ function SidebarContent({
   });
 
   // Remove consecutive dividers and trailing dividers
+  // Exception: a top-level divider followed immediately by a subGroup divider is valid
   const cleanedNavigation = filteredNavigation.filter((item, idx, arr) => {
     if (item.name !== 'divider' && item.name !== 'favorites') {
       return true;
@@ -749,7 +750,14 @@ function SidebarContent({
       return true;
     }
     const nextItem = arr[idx + 1];
-    if (!nextItem || nextItem.name === 'divider') {
+    if (!nextItem) {
+      return false;
+    }
+    // Allow a top-level divider to be followed by a subGroup divider
+    if (nextItem.name === 'divider' && nextItem.subGroup) {
+      return true;
+    }
+    if (nextItem.name === 'divider') {
       return false;
     }
     return true;
