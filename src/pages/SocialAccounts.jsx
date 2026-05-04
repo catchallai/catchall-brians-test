@@ -445,6 +445,11 @@ export default function SocialAccounts() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-accounts'] }),
   });
 
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, is_active }) => base44.entities.SocialAccount.update(id, { is_active }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-accounts'] }),
+  });
+
   const getPlatformConfig = (platformId) => PLATFORMS.find((p) => p.id === platformId);
 
   return (
@@ -540,12 +545,25 @@ export default function SocialAccounts() {
                       {new Date(account.created_date).toLocaleDateString()}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setDisconnectAccountId(account.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => toggleActiveMutation.mutate({ id: account.id, is_active: !account.is_active })}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        account.is_active
+                          ? 'text-gray-400 hover:text-amber-600 hover:bg-amber-50'
+                          : 'text-emerald-600 hover:bg-emerald-50 bg-emerald-50'
+                      }`}
+                      title={account.is_active ? 'Deactivate' : 'Activate'}
+                    >
+                      {account.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button
+                      onClick={() => setDisconnectAccountId(account.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               );
             })}
