@@ -157,7 +157,7 @@ const navigation = [
   { name: 'Team Calendar', icon: CalendarDays, page: 'HRISTeamCalendar' },
   { name: 'HR Analytics', icon: BarChart3, page: 'HRISAnalytics' },
   { name: 'HR AI Assistant', icon: Sparkles, page: 'HRISAIAssistant' },
-  { name: 'divider', label: 'People Ops', collapsible: true },
+  { name: 'divider', label: 'People Ops', collapsible: true, subGroup: true, parentSection: 'HRIS' },
   { name: 'Onboarding', icon: UserCheck, page: 'HRISOnboarding' },
   { name: 'Offboarding', icon: LogOut, page: 'HRISOffboarding' },
   { name: 'Time Off', icon: Calendar, page: 'HRISTimeOff' },
@@ -166,10 +166,10 @@ const navigation = [
   { name: 'Contracts', icon: FileSignature, page: 'HRISContracts' },
   { name: 'HR Documents', icon: FileText, page: 'HRISDocuments' },
   { name: 'Email Templates', icon: Mail, page: 'HRISEmailTemplates' },
-  { name: 'divider', label: 'Culture', collapsible: true },
+  { name: 'divider', label: 'Culture', collapsible: true, subGroup: true, parentSection: 'HRIS' },
   { name: 'Announcements', icon: Megaphone, page: 'HRISAnnouncements' },
   { name: 'Recognition', icon: Award, page: 'HRISRecognition' },
-  { name: 'divider', label: 'Talent', collapsible: true },
+  { name: 'divider', label: 'Talent', collapsible: true, subGroup: true, parentSection: 'HRIS' },
   { name: 'Hiring', icon: Briefcase, page: 'HRISHiring' },
   { name: 'Performance', icon: Target, page: 'HRISPerformance' },
   { name: 'Training', icon: BookOpen, page: 'TalentTraining' },
@@ -298,6 +298,11 @@ const PAGE_TO_SECTIONS = (() => {
       }
       if (!map[item.page].includes(currentSection)) {
         map[item.page].push(currentSection);
+      }
+      // If current section is a sub-group, also map to parent so parent expands
+      const divider = navigation.find((n) => n.name === 'divider' && n.label === currentSection);
+      if (divider?.subGroup && divider?.parentSection && !map[item.page].includes(divider.parentSection)) {
+        map[item.page].push(divider.parentSection);
       }
     }
   }
@@ -772,6 +777,7 @@ function SidebarContent({
             if (item.name === 'divider') {
               const isSectionCollapsed = collapsedSections[item.label];
               const isCollapsible = item.collapsible;
+              const isSubGroup = !!item.subGroup;
               const sectionColor = SECTION_COLORS[item.label] || {
                 bg: '',
                 text: 'text-gray-400 dark:text-gray-500',
@@ -781,6 +787,29 @@ function SidebarContent({
               // Hide dividers when sidebar is collapsed
               if (isCollapsed) {
                 return null;
+              }
+
+              // Sub-group dividers: hide if parent section (HRIS) is collapsed
+              if (isSubGroup && item.parentSection && collapsedSections[item.parentSection]) {
+                return null;
+              }
+
+              if (isSubGroup) {
+                return (
+                  <div key={idx} className="pt-2 pb-0.5 pl-3">
+                    <button
+                      onClick={() => isCollapsible && toggleSection(item.label)}
+                      className={`w-full px-2 py-1.5 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 rounded-lg text-fuchsia-500 dark:text-fuchsia-400 hover:opacity-80 cursor-pointer`}
+                    >
+                      {isSectionCollapsed ? (
+                        <ChevronRight className="w-3 h-3" />
+                      ) : (
+                        <ChevronDown className="w-3 h-3" />
+                      )}
+                      {item.label}
+                    </button>
+                  </div>
+                );
               }
 
               return (
@@ -805,7 +834,7 @@ function SidebarContent({
               );
             }
 
-            // Find the section this item belongs to
+            // Find the nearest divider before this item
             const prevDividerIdx = cleanedNavigation
               .slice(0, idx)
               .reverse()
@@ -820,8 +849,10 @@ function SidebarContent({
               hoverText: 'hover:text-gray-700 dark:hover:text-gray-200',
               hoverIcon: 'group-hover:text-gray-500 dark:group-hover:text-gray-300',
             };
-            const itemSectionColor = sectionItem
-              ? SECTION_COLORS[sectionItem.label] || defaultSC
+            // For sub-group items, use HRIS color for consistency
+            const effectiveSectionLabel = sectionItem?.subGroup ? sectionItem.parentSection : sectionItem?.label;
+            const itemSectionColor = effectiveSectionLabel
+              ? SECTION_COLORS[effectiveSectionLabel] || defaultSC
               : defaultSC;
 
             // Check if item should be hidden due to collapsed section
@@ -829,6 +860,10 @@ function SidebarContent({
             if (sectionIdx !== -1) {
               const sectionDivider = cleanedNavigation[idx - sectionIdx - 1];
               if (sectionDivider.collapsible && collapsedSections[sectionDivider.label]) {
+                return null;
+              }
+              // Also hide if parent section of a sub-group is collapsed
+              if (sectionDivider.subGroup && sectionDivider.parentSection && collapsedSections[sectionDivider.parentSection]) {
                 return null;
               }
             }
@@ -931,6 +966,7 @@ function SidebarContent({
 
             const isActive = currentPage === item.page;
             const sc = itemSectionColor;
+            const isSubGroupItem = sectionItem?.subGroup;
 
             return (
               <Link
@@ -950,7 +986,7 @@ function SidebarContent({
                   isActive
                     ? `${sc.bg} ${sc.text}`
                     : `text-gray-900 dark:text-gray-100 ${sc.hoverBg} ${sc.hoverText}`
-                } ${isCollapsed ? 'justify-center' : ''}`}
+                } ${isCollapsed ? 'justify-center' : ''} ${isSubGroupItem ? 'pl-6' : ''}`}
               >
                 <item.icon
                   className={`w-5 h-5 transition-colors ${isActive ? sc.text : `text-gray-400 dark:text-gray-500 ${sc.hoverIcon}`}`}
