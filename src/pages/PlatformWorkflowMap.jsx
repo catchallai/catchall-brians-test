@@ -185,6 +185,15 @@ export const MODULES = [
     ],
   },
   {
+    id: 'clientportal', label: 'Client Portal', color: '#0f766e', x: 620, y: 430,
+    description: 'Authenticated customer-facing portal. Clients access shared legal documents, data rooms, and submit support/feedback requests directly.',
+    pages: [
+      { id: 'cp_portal', label: 'Client Portal', route: '/ClientPortal', description: 'Secure auth-gated portal for clients to view documents and submit support requests.' },
+      { id: 'cp_docs', label: 'My Documents', route: '/ClientPortal', description: 'Client-facing view of legal documents and data rooms shared with their email.' },
+      { id: 'cp_support', label: 'Support & Feedback', route: '/ClientPortal', description: 'Form for clients to submit support requests, bug reports, and NPS feedback.' },
+    ],
+  },
+  {
     id: 'bizdev', label: 'Business Dev', color: '#0369a1', x: 340, y: 90,
     description: 'Intelligence-driven business development. Aerospace scanner, competitor analysis, visitor profiles, and press monitoring.',
     pages: [
@@ -248,6 +257,10 @@ export const MODULE_EDGES = [
   ['ai', 'hris', 'HR assistant', '#0d9488', 'AI assistant answers HR policy questions'],
   ['comms', 'projects', 'Channel → project updates', '#d97706', 'ICS channels are linked to Projects for team communication'],
   ['reporting', 'ai', 'AI insights', '#8b5cf6', 'AI generates automated insights within Reports'],
+  ['legal', 'clientportal', 'Shared docs → portal', '#0f766e', 'Legal documents shared with client emails become visible in the Client Portal'],
+  ['datarooms', 'clientportal', 'Data rooms → portal', '#0f766e', 'Data rooms with recipient email set are accessible in the Client Portal'],
+  ['cs', 'clientportal', 'Feedback → CS', '#db2777', 'Feedback submitted via Client Portal flows into Customer Success for review'],
+  ['clientportal', 'cs', 'Support requests', '#db2777', 'Client support submissions create CustomerFeedback records for the CS team'],
 ];
 
 // ─── PAGE-LEVEL EDGES (within module drilldown) ────────────────────────────
@@ -330,6 +343,7 @@ const CONNECTION_TYPES = [
   { color: '#6366f1', label: 'Communications' },
   { color: '#0369a1', label: 'Business Dev' },
   { color: '#a855f7', label: 'Legal flow' },
+  { color: '#0f766e', label: 'Client Portal' },
 ];
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────

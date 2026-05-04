@@ -790,6 +790,27 @@ const completeSections = {
       },
     ],
   },
+  clientPortal: {
+    title: 'Client Portal',
+    color: 'teal',
+    pages: [
+      {
+        name: 'Client Portal',
+        icon: '🔐',
+        description: 'Authenticated external-facing portal for clients',
+        whatItDoes: 'Provides clients with a dedicated, authenticated portal to view documents shared with them, access data rooms, and submit support or feedback requests — all without requiring a full platform account.',
+        howItWorks: 'Clients navigate to /ClientPortal and sign in. The portal fetches LegalDocuments and DataRooms where their email is set as the recipient. Clients can view documents, download files (if the data room allows it), and submit typed support requests that flow into the CustomerFeedback entity for the CS team.',
+        useCases: [
+          'Give clients a branded, secure place to receive contracts and NDA packets',
+          'Share due diligence data rooms with investors or acquirers',
+          'Collect NPS scores and structured feedback from clients without a survey tool',
+          'Allow clients to file support tickets without emailing a mailbox',
+          'Track which documents a client has reviewed',
+        ],
+        businessValue: 'Reduces back-and-forth email for document delivery. Centralizes client communication and feedback in a single auditable location, cutting support overhead by 30–40%.',
+      },
+    ],
+  },
   projects: {
     title: 'Project Management Module',
     color: 'amber',
@@ -1033,7 +1054,7 @@ export default function Documentation() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">Modules</p>
-                <p className="text-gray-600 dark:text-gray-400">7+ integrated modules</p>
+                <p className="text-gray-600 dark:text-gray-400">8+ integrated modules</p>
               </div>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">Features</p>
