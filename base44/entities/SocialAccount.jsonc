@@ -1,0 +1,88 @@
+{
+  "name": "SocialAccount",
+  "type": "object",
+  "properties": {
+    "platform": {
+      "type": "string",
+      "enum": [
+        "twitter",
+        "linkedin",
+        "facebook",
+        "instagram",
+        "youtube",
+        "Twitter",
+        "LinkedIn",
+        "Facebook",
+        "Instagram",
+        "YouTube",
+        "TikTok",
+        "Pinterest",
+        "Threads"
+      ],
+      "description": "Social media platform"
+    },
+    "account_name": {
+      "type": "string",
+      "description": "Account username/handle"
+    },
+    "account_url": {
+      "type": "string",
+      "description": "Profile URL"
+    },
+    "website_id": {
+      "type": "string",
+      "description": "Associated website ID"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Associated contact ID"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "followers_count": {
+      "type": "number",
+      "description": "Number of followers"
+    },
+    "posts_count": {
+      "type": "number",
+      "description": "Total posts"
+    },
+    "engagement_rate": {
+      "type": "number",
+      "description": "Average engagement rate"
+    },
+    "last_analyzed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last analysis date"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this account is active"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Account status"
+    },
+    "connection_type": {
+      "type": "string",
+      "enum": [
+        "oauth",
+        "manual"
+      ],
+      "description": "How the account was connected"
+    }
+  },
+  "required": [
+    "platform",
+    "account_name"
+  ]
+}

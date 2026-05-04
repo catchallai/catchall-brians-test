@@ -446,8 +446,9 @@ export default function SocialAccounts() {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: ({ id, is_active }) => base44.entities.SocialAccount.update(id, { is_active }),
+    mutationFn: ({ id, is_active }) => base44.entities.SocialAccount.update(id, { is_active, status: is_active ? 'active' : 'inactive' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['social-accounts'] }),
+    onError: (err) => toast.error('Failed to update: ' + err.message),
   });
 
   const getPlatformConfig = (platformId) => PLATFORMS.find((p) => p.id === platformId);
