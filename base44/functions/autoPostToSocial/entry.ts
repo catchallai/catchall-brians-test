@@ -168,21 +168,17 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Instagram posting
+    // Instagram posting via Graph API
     if (platforms.includes('Instagram')) {
-      const instagramAccount = socialAccounts.find((a) => a.platform === 'Instagram');
-      if (instagramAccount?.credentials?.access_token) {
-        results.push({
-          platform: 'Instagram',
-          success: false,
-          error: 'Instagram API integration coming soon',
-        });
-      } else {
-        results.push({
-          platform: 'Instagram',
-          success: false,
-          error: 'No Instagram account connected. Go to Social Accounts to connect.',
-        });
+      try {
+        const igResponse = await base44.asServiceRole.functions.invoke('postToInstagram', { postId });
+        if (igResponse.data.success) {
+          results.push({ platform: 'Instagram', success: true, id: igResponse.data.id, url: igResponse.data.url });
+        } else {
+          results.push({ platform: 'Instagram', success: false, error: igResponse.data.error || 'Failed to post to Instagram' });
+        }
+      } catch (error) {
+        results.push({ platform: 'Instagram', success: false, error: error.message });
       }
     }
 

@@ -34,7 +34,7 @@ const PLATFORMS = [
       </svg>
     ),
     setupType: 'oauth',
-    connectorId: '69f2df2690938b1121f61841',
+    connectorId: '69f82c4d431749a05bc401f5',
   },
   {
     id: 'Threads',
