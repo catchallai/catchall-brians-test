@@ -268,6 +268,7 @@ const navigation = [
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Platform Map', icon: Network, page: 'PlatformWorkflowMap' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
+  { name: 'Client Portal', icon: Users, page: 'ClientPortal' },
 ];
 
 /**
@@ -625,6 +626,7 @@ const SIDEBAR_ICONS = {
   PlatformWorkflowMap: Network,
   CompanySettings: Building2,
   ActivityLogs: Activity,
+  ClientPortal: Users,
   };
 
 function SidebarContent({

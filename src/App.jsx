@@ -8,6 +8,7 @@ import { pagesConfig } from './pages.config';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Permissions from './pages/Permissions';
+import ClientPortal from './pages/ClientPortal';
 import GitHubDashboard from './pages/GitHubDashboard';
 import Equity from './pages/Equity';
 import HRISAnnouncements from './pages/HRISAnnouncements';
@@ -187,6 +188,7 @@ const AuthenticatedApp = () => {
       <Route path="/Integrations" element={<LayoutWrapper currentPageName="Integrations"><Integrations /></LayoutWrapper>} />
       <Route path="/Features" element={<LayoutWrapper currentPageName="Features"><Features /></LayoutWrapper>} />
       <Route path="/Permissions" element={<LayoutWrapper currentPageName="Permissions"><Permissions /></LayoutWrapper>} />
+      <Route path="/ClientPortal" element={<ClientPortal />} />
       <Route path="/GitHubDashboard" element={<LayoutWrapper currentPageName="GitHubDashboard"><GitHubDashboard /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
