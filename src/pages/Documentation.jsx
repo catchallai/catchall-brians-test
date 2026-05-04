@@ -475,13 +475,24 @@ await base44.entities.Contact.delete(id);
 - Triggered on create/update/delete events
 - Access to old and new data
 - Conditional firing with filter conditions
-- Examples: Audit logging, compliance scanning
+- Examples: Audit logging, compliance scanning, workflow execution
 
 ### Webhook Automations
 - Connector-based (OAuth integrations)
-- Examples: Google Calendar events, Slack messages
+- Examples: Google Calendar events, Slack messages, LinkedIn
 - Real-time event handling
 - Conditional routing to functions
+
+## Active Backend Functions (selected)
+- enrichCompanyData / enrichAllCompanies / enrichCompanyIntelligence
+- sendResendEmail / sendCampaignEmail / sendContactEmail / sendTrackedEmail
+- executeWorkflow / evaluateWorkflowTriggers
+- checkDocuTraceAlerts / trackDocumentAccess
+- analyzeFeedback / analyzeSEOOpportunities / analyzeBacklinkOpportunities
+- autoPopulateCalendar / generateCalendarNotifications
+- fetchGA4Data / fetchGSCData / fetchSemrushData / fetchAhrefsData
+- generateProposalPdf / exportPitchDeckPDF / exportPitchDeckPPTX
+- scimProvision / createAuditLog / seedDemoData
 
 ## Example Function
 \`\`\`javascript
