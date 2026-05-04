@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const CONNECTOR_ID = '69f82c4d431749a05bc401f5';
+const GRAPH_URL = 'https://graph.facebook.com/v19.0';
 
 Deno.serve(async (req) => {
   try {
@@ -22,16 +23,31 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // Get Instagram OAuth token for this app user
+    // Get Instagram OAuth token via app user connector
     const { accessToken } = await base44.asServiceRole.connectors.getCurrentAppUserConnection(CONNECTOR_ID);
 
-    // Get Instagram user ID
-    const meRes = await fetch(`https://graph.instagram.com/me?fields=id,username&access_token=${accessToken}`);
-    const meData = await meRes.json();
-    if (!meRes.ok || !meData.id) {
-      return Response.json({ error: 'Failed to get Instagram user: ' + (meData.error?.message || 'unknown') }, { status: 400 });
+    // Step 1: Get the Instagram Business Account ID via Facebook Graph API
+    // The token from Instagram Business connector gives access to FB pages + linked IG accounts
+    const pagesRes = await fetch(
+      `${GRAPH_URL}/me/accounts?fields=id,name,instagram_business_account&access_token=${accessToken}`
+    );
+    const pagesData = await pagesRes.json();
+
+    if (!pagesRes.ok || !pagesData.data) {
+      return Response.json({
+        error: 'Could not fetch Facebook Pages. Make sure your Instagram account is a Business or Creator account linked to a Facebook Page. Details: ' + (pagesData.error?.message || JSON.stringify(pagesData)),
+      }, { status: 400 });
     }
-    const igUserId = meData.id;
+
+    // Find the first page that has a linked Instagram Business account
+    const pageWithIG = pagesData.data.find((p) => p.instagram_business_account?.id);
+    if (!pageWithIG) {
+      return Response.json({
+        error: 'No Instagram Business account found. Please ensure your Instagram account is a Business or Creator account connected to a Facebook Page.',
+      }, { status: 400 });
+    }
+
+    const igAccountId = pageWithIG.instagram_business_account.id;
 
     const caption = post.caption || post.content || '';
     const imageUrl = post.image_url || (Array.isArray(post.image_urls) ? post.image_urls[0] : null);
@@ -40,66 +56,76 @@ Deno.serve(async (req) => {
     let containerId;
 
     if (videoUrl) {
-      // Reel
-      const createRes = await fetch(`https://graph.instagram.com/${igUserId}/media`, {
+      // Create a Reel container
+      const params = new URLSearchParams({
+        media_type: 'REELS',
+        video_url: videoUrl,
+        caption,
+        access_token: accessToken,
+      });
+      const createRes = await fetch(`${GRAPH_URL}/${igAccountId}/media`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          media_type: 'REELS',
-          video_url: videoUrl,
-          caption,
-          access_token: accessToken,
-        }),
+        body: params,
       });
       const createData = await createRes.json();
       if (!createRes.ok || !createData.id) {
-        return Response.json({ error: 'Failed to create video container: ' + (createData.error?.message || JSON.stringify(createData)) }, { status: 400 });
+        return Response.json({
+          error: 'Failed to create video container: ' + (createData.error?.message || JSON.stringify(createData)),
+        }, { status: 400 });
       }
       containerId = createData.id;
 
       // Poll for video processing (up to 60s)
       for (let i = 0; i < 12; i++) {
         await new Promise((r) => setTimeout(r, 5000));
-        const statusRes = await fetch(`https://graph.instagram.com/${containerId}?fields=status_code&access_token=${accessToken}`);
+        const statusRes = await fetch(
+          `${GRAPH_URL}/${containerId}?fields=status_code&access_token=${accessToken}`
+        );
         const statusData = await statusRes.json();
         if (statusData.status_code === 'FINISHED') break;
         if (statusData.status_code === 'ERROR') {
-          return Response.json({ error: 'Video processing failed' }, { status: 400 });
+          return Response.json({ error: 'Video processing failed on Instagram.' }, { status: 400 });
         }
       }
     } else if (imageUrl) {
-      // Image post
-      const createRes = await fetch(`https://graph.instagram.com/${igUserId}/media`, {
+      // Create an image media container
+      const params = new URLSearchParams({
+        image_url: imageUrl,
+        caption,
+        access_token: accessToken,
+      });
+      const createRes = await fetch(`${GRAPH_URL}/${igAccountId}/media`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: imageUrl,
-          caption,
-          access_token: accessToken,
-        }),
+        body: params,
       });
       const createData = await createRes.json();
       if (!createRes.ok || !createData.id) {
-        return Response.json({ error: 'Failed to create image container: ' + (createData.error?.message || JSON.stringify(createData)) }, { status: 400 });
+        return Response.json({
+          error: 'Failed to create image container: ' + (createData.error?.message || JSON.stringify(createData)),
+        }, { status: 400 });
       }
       containerId = createData.id;
     } else {
-      return Response.json({ error: 'Instagram requires an image or video URL to publish a feed post.' }, { status: 400 });
+      return Response.json({
+        error: 'Instagram requires an image or video URL to publish a feed post.',
+      }, { status: 400 });
     }
 
-    // Publish the container
-    const publishRes = await fetch(`https://graph.instagram.com/${igUserId}/media_publish`, {
+    // Step 2: Publish the container
+    const publishParams = new URLSearchParams({
+      creation_id: containerId,
+      access_token: accessToken,
+    });
+    const publishRes = await fetch(`${GRAPH_URL}/${igAccountId}/media_publish`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        creation_id: containerId,
-        access_token: accessToken,
-      }),
+      body: publishParams,
     });
     const publishData = await publishRes.json();
 
     if (!publishRes.ok || !publishData.id) {
-      return Response.json({ error: 'Failed to publish: ' + (publishData.error?.message || JSON.stringify(publishData)) }, { status: 400 });
+      return Response.json({
+        error: 'Failed to publish to Instagram: ' + (publishData.error?.message || JSON.stringify(publishData)),
+      }, { status: 400 });
     }
 
     const postUrl = `https://www.instagram.com/p/${publishData.id}/`;
