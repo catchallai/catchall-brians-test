@@ -15,6 +15,7 @@ import SessionReplayTracker from '@/components/analytics/SessionReplayTracker';
 import WhitelabelHeader from '@/components/whitelabel/WhitelabelHeader';
 
 import {
+  Database,
   LayoutDashboard,
   Rocket,
   Users,
@@ -268,6 +269,7 @@ const navigation = [
   { name: 'Help Center', icon: HelpCircle, page: 'HelpCenter' },
   { name: 'Documentation', icon: FileText, page: 'Documentation' },
   { name: 'Platform Map', icon: Network, page: 'PlatformWorkflowMap' },
+  { name: 'Database Map', icon: Database, page: 'DatabaseMap' },
   { name: 'Activity Logs', icon: Activity, page: 'ActivityLogs' },
   { name: 'Client Portal', icon: Users, page: 'ClientPortal' },
 ];
