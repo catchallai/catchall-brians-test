@@ -92,12 +92,7 @@ export default function Spaces() {
       <div className="w-56 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900/50">
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer">
-            <div className="w-6 h-6 rounded bg-violet-600 flex items-center justify-center text-white text-xs font-bold">
-              A
-            </div>
-            <span className="text-sm font-semibold text-gray-900 dark:text-white">Workspace</span>
-          </div>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white px-2">Documentation</span>
         </div>
 
         {/* Navigation */}
@@ -176,19 +171,17 @@ export default function Spaces() {
         {/* Header Bar */}
         {selectedSpace && (
           <div className="h-12 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 bg-white dark:bg-gray-950">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Untitled</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Saved</span>
-              <Button size="sm" className="h-7 px-3 text-xs bg-violet-600 hover:bg-violet-700">
-                Publish
-              </Button>
-              <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
-                Close
-              </Button>
-            </div>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {spaces.find((s) => s.id === selectedSpace)?.name}
+            </span>
+            <Button
+              size="sm"
+              className="h-7 px-3 text-xs bg-violet-600 hover:bg-violet-700"
+              onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${selectedSpace}`)}
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              New Page
+            </Button>
           </div>
         )}
 
@@ -271,10 +264,7 @@ export default function Spaces() {
                   <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">No pages yet. Create your first page to get started.</p>
                   <Button
-                    onClick={() => {
-                      setEditingSpace(null);
-                      setShowModal(true);
-                    }}
+                    onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${selectedSpace}`)}
                     className="mt-4 bg-violet-600 hover:bg-violet-700"
                   >
                     <Plus className="w-4 h-4 mr-2" />
