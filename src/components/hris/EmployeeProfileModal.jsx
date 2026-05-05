@@ -8,8 +8,20 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Mail, Phone, MapPin, Briefcase, Calendar, DollarSign, Users, 
-  CheckCircle, Clock, AlertCircle, FileText, Award, Target, Zap
+  CheckCircle, Clock, AlertCircle, FileText, Award, Target, Zap,
+  Monitor, Package2, TrendingUp
 } from "lucide-react";
+
+const fmt = (n) => `$${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const TYPE_BADGE = {
+  hardware:     'bg-orange-100 text-orange-700',
+  software:     'bg-blue-100 text-blue-700',
+  subscription: 'bg-violet-100 text-violet-700',
+  license:      'bg-indigo-100 text-indigo-700',
+  service:      'bg-teal-100 text-teal-700',
+  other:        'bg-gray-100 text-gray-600',
+};
 
 const STATUS_COLORS = {
   active: "bg-green-100 text-green-700",
@@ -69,6 +81,15 @@ export default function EmployeeProfileModal({ employee, open, onOpenChange }) {
     enabled: !!employee?.id,
   });
 
+  const { data: assignedProducts = [] } = useQuery({
+    queryKey: ["employee-products", employee?.id],
+    queryFn: async () => {
+      const all = await base44.entities.VendorProduct.list();
+      return all.filter(p => p.assigned_employee_id === employee.id);
+    },
+    enabled: !!employee?.id,
+  });
+
   if (!employee) return null;
 
   return (
@@ -102,11 +123,12 @@ export default function EmployeeProfileModal({ employee, open, onOpenChange }) {
 
           {/* Tabs */}
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid grid-cols-5 w-full">
+            <TabsList className="grid grid-cols-6 w-full">
               <TabsTrigger value="general">General</TabsTrigger>
+              <TabsTrigger value="costcenter">Cost Center</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="talent">Talent & Learning</TabsTrigger>
-              <TabsTrigger value="projects">Projects & Sales</TabsTrigger>
+              <TabsTrigger value="talent">Talent</TabsTrigger>
+              <TabsTrigger value="projects">Projects</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
             </TabsList>
 
@@ -175,6 +197,81 @@ export default function EmployeeProfileModal({ employee, open, onOpenChange }) {
                   </div>
                 )}
               </div>
+            </TabsContent>
+
+            {/* Cost Center Tab */}
+            <TabsContent value="costcenter" className="space-y-4">
+              {(() => {
+                const hardwareItems = assignedProducts.filter(p => p.product_type === 'hardware');
+                const softwareItems = assignedProducts.filter(p => ['software', 'subscription', 'license'].includes(p.product_type));
+                const otherItems = assignedProducts.filter(p => !['hardware', 'software', 'subscription', 'license'].includes(p.product_type));
+                const totalHardware = hardwareItems.reduce((s, p) => s + (p.total_amount || 0), 0);
+                const totalSoftware = softwareItems.reduce((s, p) => s + (p.total_amount || 0), 0);
+                const totalOther = otherItems.reduce((s, p) => s + (p.total_amount || 0), 0);
+                const totalAssets = totalHardware + totalSoftware + totalOther;
+                const annualSalary = employee.salary || 0;
+                const totalCost = annualSalary + totalAssets;
+
+                return (
+                  <div className="space-y-5">
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 rounded-xl">
+                        <p className="text-xs text-violet-600 font-semibold uppercase">Annual Salary</p>
+                        <p className="text-xl font-bold text-violet-700">{fmt(annualSalary)}</p>
+                      </div>
+                      <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 rounded-xl">
+                        <p className="text-xs text-orange-600 font-semibold uppercase">Hardware</p>
+                        <p className="text-xl font-bold text-orange-700">{fmt(totalHardware)}</p>
+                      </div>
+                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 rounded-xl">
+                        <p className="text-xs text-blue-600 font-semibold uppercase">Software / Licenses</p>
+                        <p className="text-xl font-bold text-blue-700">{fmt(totalSoftware)}</p>
+                      </div>
+                      <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 rounded-xl">
+                        <div className="flex items-center gap-1">
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                          <p className="text-xs text-emerald-600 font-semibold uppercase">Total Cost</p>
+                        </div>
+                        <p className="text-xl font-bold text-emerald-700">{fmt(totalCost)}</p>
+                      </div>
+                    </div>
+
+                    {assignedProducts.length === 0 ? (
+                      <div className="text-center py-8 text-gray-400 text-sm">
+                        <Package2 className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                        No hardware or software assigned yet.<br />
+                        Assign items when importing invoices in Finance.
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Assigned Items ({assignedProducts.length})</p>
+                        {assignedProducts.map(p => (
+                          <div key={p.id} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            {p.product_type === 'hardware'
+                              ? <Monitor className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                              : <Package2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            }
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{p.name}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-xs text-gray-400">{p.vendor_name}</span>
+                                {p.invoice_date && <span className="text-xs text-gray-400">{p.invoice_date}</span>}
+                              </div>
+                            </div>
+                            <Badge className={`${TYPE_BADGE[p.product_type] || TYPE_BADGE.other} border-0 text-xs flex-shrink-0`}>
+                              {p.product_type}
+                            </Badge>
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex-shrink-0">
+                              {fmt(p.total_amount)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </TabsContent>
 
             {/* Performance Tab */}

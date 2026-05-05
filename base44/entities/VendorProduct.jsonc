@@ -93,6 +93,14 @@
     },
     "notes": {
       "type": "string"
+    },
+    "assigned_employee_id": {
+      "type": "string",
+      "description": "HRIS Employee ID this item is assigned to"
+    },
+    "assigned_employee_name": {
+      "type": "string",
+      "description": "Name of the assigned employee"
     }
   },
   "required": [

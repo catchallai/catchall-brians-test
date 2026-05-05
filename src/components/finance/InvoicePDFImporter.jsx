@@ -9,8 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Upload, FileText, CheckCircle2, AlertCircle, Loader2,
-  Package, Building2, X, ChevronRight, ChevronLeft,
+  Package, Building2, X, ChevronRight, ChevronLeft, UserCheck,
 } from 'lucide-react';
+
+const ASSIGNABLE_TYPES = ['software', 'hardware', 'subscription', 'license'];
 
 const fmt = (n) => `$${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const PRODUCT_TYPES = ['software', 'service', 'contract', 'hardware', 'subscription', 'license', 'consulting', 'other'];
@@ -94,6 +96,11 @@ export default function InvoicePDFImporter({ open, onClose, existingVendors = []
   const { data: allVendors = [] } = useQuery({
     queryKey: ['vendors'],
     queryFn: () => base44.entities.Vendor.list(),
+  });
+
+  const { data: employees = [] } = useQuery({
+    queryKey: ['hris-employees-for-assignment'],
+    queryFn: () => base44.entities.HRISEmployee.list(),
   });
 
   // step: 'upload' | 'processing' | 'reviewing' | 'done'
@@ -287,6 +294,8 @@ For the vendor, extract company name, contact info, and categorize them. Return 
         invoice_date: parsed.invoice.invoice_date,
         invoice_number: parsed.invoice.invoice_number,
         status: 'active',
+        assigned_employee_id: li.assigned_employee_id || null,
+        assigned_employee_name: li.assigned_employee_name || null,
       })
     ));
 
@@ -543,6 +552,30 @@ For the vendor, extract company name, contact info, and categorize them. Return 
                                   <Input type="date" value={li.expiration_date || ''} onChange={e => updateLineItem('expiration_date', e.target.value, li._key)} className="h-8 text-sm border-amber-200" disabled={!li._include} />
                                 </div>
                               </>
+                            )}
+                            {ASSIGNABLE_TYPES.includes(li.product_type) && employees.length > 0 && (
+                              <div className="col-span-2">
+                                <Label className="text-xs text-indigo-600 flex items-center gap-1">
+                                  <UserCheck className="w-3 h-3" /> Assign to Employee
+                                </Label>
+                                <Select
+                                  value={li.assigned_employee_id || ''}
+                                  onValueChange={v => {
+                                    const emp = employees.find(e => e.id === v);
+                                    updateLineItem('assigned_employee_id', v || null, li._key);
+                                    updateLineItem('assigned_employee_name', emp?.full_name || null, li._key);
+                                  }}
+                                  disabled={!li._include}
+                                >
+                                  <SelectTrigger className="h-8 text-sm border-indigo-200"><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value={null}>Unassigned</SelectItem>
+                                    {employees.filter(e => e.status === 'active').map(e => (
+                                      <SelectItem key={e.id} value={e.id}>{e.full_name}{e.department ? ` · ${e.department}` : ''}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             )}
                             {li.description && (
                               <div className="col-span-2">
