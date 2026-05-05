@@ -203,7 +203,14 @@ export default function WikiPageEditor() {
       };
 
       if (presenceId) {
-        await base44.entities.WikiPagePresence.update(presenceId, presence);
+        try {
+          await base44.entities.WikiPagePresence.update(presenceId, presence);
+        } catch {
+          // Record was deleted externally — create a new one
+          presenceId = null;
+          const created = await base44.entities.WikiPagePresence.create(presence);
+          presenceId = created.id;
+        }
       } else {
         const created = await base44.entities.WikiPagePresence.create(presence);
         presenceId = created.id;
