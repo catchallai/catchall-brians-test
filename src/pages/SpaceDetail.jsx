@@ -5,11 +5,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Plus, FileText, Clock, Eye, Trash2, Edit, Folder, Lock, Tag } from 'lucide-react';
+import { ArrowLeft, Plus, FileText, Clock, Eye, Trash2, Edit, Folder, Lock, LayoutTemplate } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { createPageUrl } from '@/utils';
 import FolderTree from '@/components/wiki/FolderTree';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import SpaceTemplatesManager from '@/components/wiki/SpaceTemplatesManager';
 
 export default function SpaceDetail() {
   const [searchParams] = useSearchParams();
@@ -20,6 +21,7 @@ export default function SpaceDetail() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deletePageId, setDeletePageId] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'tree'
+  const [activeTab, setActiveTab] = useState('pages'); // 'pages' | 'templates'
 
   const { data: space } = useQuery({
     queryKey: ['space', spaceId],
@@ -35,7 +37,7 @@ export default function SpaceDetail() {
     queryFn: async () => {
       if (!spaceId) return [];
       const allPages = await base44.entities.WikiPage.list();
-      return allPages.filter((p) => p.space_id === spaceId);
+      return allPages.filter((p) => p.space_id === spaceId && !p.template);
     },
     enabled: !!spaceId,
   });
@@ -87,11 +89,7 @@ export default function SpaceDetail() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(createPageUrl('Spaces'))}
-          >
+          <Button variant="ghost" size="icon" onClick={() => navigate(createPageUrl('Spaces'))}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-3">
@@ -104,137 +102,173 @@ export default function SpaceDetail() {
             </div>
           </div>
         </div>
-        <Button
-          onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
-          className="gap-2"
+        {activeTab === 'pages' && (
+          <Button
+            onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Page
+          </Button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-1 border-b border-gray-200 dark:border-gray-800">
+        <button
+          onClick={() => setActiveTab('pages')}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'pages'
+              ? 'border-violet-600 text-violet-600 dark:text-violet-400'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
         >
-          <Plus className="w-4 h-4" />
-          New Page
-        </Button>
+          <FileText className="w-4 h-4" /> Pages
+        </button>
+        <button
+          onClick={() => setActiveTab('templates')}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'templates'
+              ? 'border-violet-600 text-violet-600 dark:text-violet-400'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          <LayoutTemplate className="w-4 h-4" /> Templates
+        </button>
       </div>
 
-      {/* Search and View Mode */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search pages..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex gap-2 ml-auto">
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            List View
-          </Button>
-          <Button
-            variant={viewMode === 'tree' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('tree')}
-          >
-            <Folder className="w-4 h-4 mr-2" />
-            Tree View
-          </Button>
-        </div>
-      </div>
+      {/* Templates Tab */}
+      {activeTab === 'templates' && (
+        <SpaceTemplatesManager spaceId={spaceId} />
+      )}
 
-      {/* Pages Display */}
-      {pages.length === 0 ? (
-        <Card className="p-12 text-center glass-card">
-          <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No pages yet</h3>
-          <p className="text-gray-500 mb-4">Create your first page to start documenting</p>
-          <Button onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Page
-          </Button>
-        </Card>
-      ) : viewMode === 'tree' ? (
-        <Card className="p-6 glass-card">
-          <FolderTree pages={filteredPages} spaceId={spaceId} />
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          {filteredPages.map((page) => (
-            <Card
-              key={page.id}
-              className="p-4 hover:shadow-md transition-shadow cursor-pointer group glass-card"
-              onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-violet-600 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold group-hover:text-violet-600 transition-colors">
-                        {page.title}
-                      </h3>
-                      {page.ai_summary && (
-                        <p className="text-sm text-gray-500 line-clamp-2 mt-1">
-                          {page.ai_summary}
-                        </p>
-                      )}
+      {/* Pages Tab */}
+      {activeTab === 'pages' && (
+        <>
+          {/* Search and View Mode */}
+          <div className="flex items-center gap-4">
+            <Input
+              placeholder="Search pages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+            <div className="flex gap-2 ml-auto">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                List View
+              </Button>
+              <Button
+                variant={viewMode === 'tree' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('tree')}
+              >
+                <Folder className="w-4 h-4 mr-2" />
+                Tree View
+              </Button>
+            </div>
+          </div>
+
+          {/* Pages Display */}
+          {pages.length === 0 ? (
+            <Card className="p-12 text-center glass-card">
+              <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No pages yet</h3>
+              <p className="text-gray-500 mb-4">Create your first page to start documenting</p>
+              <Button onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}`)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Page
+              </Button>
+            </Card>
+          ) : viewMode === 'tree' ? (
+            <Card className="p-6 glass-card">
+              <FolderTree pages={filteredPages} spaceId={spaceId} />
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {filteredPages.map((page) => (
+                <Card
+                  key={page.id}
+                  className="p-4 hover:shadow-md transition-shadow cursor-pointer group glass-card"
+                  onClick={() => navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-violet-600 flex-shrink-0" />
+                        <div>
+                          <h3 className="font-semibold group-hover:text-violet-600 transition-colors">
+                            {page.title}
+                          </h3>
+                          {page.ai_summary && (
+                            <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                              {page.ai_summary}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        {page.last_viewed_at && (
+                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <Clock className="w-3 h-3" />
+                            {formatDate(page.last_viewed_at)}
+                          </span>
+                        )}
+                        {page.view_count > 0 && (
+                          <span className="flex items-center gap-1 text-xs text-gray-500">
+                            <Eye className="w-3 h-3" />
+                            {page.view_count} views
+                          </span>
+                        )}
+                        {page.status === 'draft' && (
+                          <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20">Draft</Badge>
+                        )}
+                        {page.is_locked && (
+                          <Badge variant="outline" className="text-xs text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 gap-1">
+                            <Lock className="w-3 h-3" /> Locked
+                          </Badge>
+                        )}
+                        {page.tags?.length > 0 && page.tags.slice(0, 3).map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-0">
+                            {tag}
+                          </Badge>
+                        ))}
+                        {page.tags?.length > 3 && (
+                          <span className="text-xs text-gray-400">+{page.tags.length - 3}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeletePageId(page.id);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    {page.last_viewed_at && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(page.last_viewed_at)}
-                      </span>
-                    )}
-                    {page.view_count > 0 && (
-                      <span className="flex items-center gap-1 text-xs text-gray-500">
-                        <Eye className="w-3 h-3" />
-                        {page.view_count} views
-                      </span>
-                    )}
-                    {page.status === 'draft' && (
-                      <Badge variant="outline" className="text-xs text-yellow-700 border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20">Draft</Badge>
-                    )}
-                    {page.is_locked && (
-                      <Badge variant="outline" className="text-xs text-red-600 border-red-200 bg-red-50 dark:bg-red-900/20 gap-1">
-                        <Lock className="w-3 h-3" /> Locked
-                      </Badge>
-                    )}
-                    {page.tags?.length > 0 && page.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-0">
-                        {tag}
-                      </Badge>
-                    ))}
-                    {page.tags?.length > 3 && (
-                      <span className="text-xs text-gray-400">+{page.tags.length - 3}</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`${createPageUrl('WikiPageEditor')}?spaceId=${spaceId}&pageId=${page.id}`);
-                    }}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeletePageId(page.id);
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Delete Confirmation */}
