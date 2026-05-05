@@ -133,70 +133,113 @@ export default function EmployeeProfileModal({ employee, open, onOpenChange }) {
             </TabsList>
 
             {/* General Tab */}
-            <TabsContent value="general" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase">Email</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Mail className="w-4 h-4 text-gray-400" />
-                    <p className="text-gray-900 dark:text-white break-all">{employee.email}</p>
+            <TabsContent value="general" className="space-y-6">
+              {/* Personal Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Personal Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase">Email</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <p className="text-sm text-gray-900 dark:text-white break-all">{employee.email}</p>
+                    </div>
+                  </div>
+                  {employee.phone && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Phone</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Phone className="w-4 h-4 text-gray-400" />
+                        <p className="text-sm text-gray-900 dark:text-white">{employee.phone}</p>
+                      </div>
+                    </div>
+                  )}
+                  {employee.location && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Location</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <p className="text-sm text-gray-900 dark:text-white">{employee.location}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Employment Information Section */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Employment Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {employee.job_title && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Job Title</p>
+                      <p className="text-sm text-gray-900 dark:text-white mt-1">{employee.job_title}</p>
+                    </div>
+                  )}
+                  {employee.department && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Department</p>
+                      <p className="text-sm text-gray-900 dark:text-white mt-1">{employee.department}</p>
+                    </div>
+                  )}
+                  {employee.manager_name && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Manager</p>
+                      <p className="text-sm text-gray-900 dark:text-white mt-1">{employee.manager_name}</p>
+                    </div>
+                  )}
+                  {employee.start_date && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase">Start Date</p>
+                      <p className="text-sm text-gray-900 dark:text-white mt-1">{new Date(employee.start_date).toLocaleDateString()}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Compensation & Benefits */}
+              {employee.salary && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Compensation</h3>
+                  <div className="p-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-lg">
+                    <p className="text-xs text-violet-600 font-semibold uppercase mb-2">Annual Salary</p>
+                    <p className="text-2xl font-bold text-violet-700 dark:text-violet-300">${employee.salary.toLocaleString()}</p>
                   </div>
                 </div>
-                {employee.phone && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Phone</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">{employee.phone}</p>
-                    </div>
+              )}
+
+              {/* Time Off Balances */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Time Off Balance</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-center">
+                    <p className="text-xs text-blue-600 font-semibold uppercase mb-1">Vacation</p>
+                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{employee.vacation_balance ?? 15}</p>
                   </div>
-                )}
-                {employee.location && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Location</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">{employee.location}</p>
-                    </div>
+                  <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg text-center">
+                    <p className="text-xs text-orange-600 font-semibold uppercase mb-1">Sick</p>
+                    <p className="text-lg font-bold text-orange-700 dark:text-orange-300">{employee.sick_balance ?? 10}</p>
                   </div>
-                )}
-                {employee.department && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Department</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Briefcase className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">{employee.department}</p>
-                    </div>
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg text-center">
+                    <p className="text-xs text-indigo-600 font-semibold uppercase mb-1">Personal</p>
+                    <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300">{employee.personal_balance ?? 3}</p>
                   </div>
-                )}
-                {employee.start_date && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Start Date</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">{new Date(employee.start_date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                )}
-                {employee.salary && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Annual Salary</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <DollarSign className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">${employee.salary.toLocaleString()}</p>
-                    </div>
-                  </div>
-                )}
-                {employee.manager_name && (
-                  <div>
-                    <p className="text-xs font-semibold text-gray-400 uppercase">Manager</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Users className="w-4 h-4 text-gray-400" />
-                      <p className="text-gray-900 dark:text-white">{employee.manager_name}</p>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
+
+              {/* Skills Section */}
+              {employee.skills && employee.skills.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {employee.skills.map((skill, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
 
             {/* Cost Center Tab */}
