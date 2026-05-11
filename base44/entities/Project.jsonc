@@ -1,0 +1,110 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Project description"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Project lead contact ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "active",
+        "on_hold",
+        "completed",
+        "cancelled"
+      ],
+      "default": "planning",
+      "description": "Project status"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Project end date"
+    },
+    "progress": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "description": "Project progress percentage"
+    },
+    "budget": {
+      "type": "number",
+      "description": "Project budget"
+    },
+    "budget_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount spent on project"
+    },
+    "team_members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Email addresses of team members"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Project priority"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Project tags"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": [
+        "project",
+        "photo_video_shoot",
+        "graphic_design",
+        "photo_video",
+        "pdf_document"
+      ],
+      "default": "project",
+      "description": "Distinguishes the project's workflow. Drives which custom fields render on the Project Detail page."
+    },
+    "project_type_data": {
+      "type": "object",
+      "additionalProperties": true,
+      "default": {},
+      "description": "Type-specific fields persisted alongside the project. Shape varies by project_type."
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
