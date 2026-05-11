@@ -102,6 +102,40 @@
       "additionalProperties": true,
       "default": {},
       "description": "Type-specific fields persisted alongside the project. Shape varies by project_type."
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "Display name of the user who created the project. Stamped on create alongside created_by (email). Immutable after creation."
+    },
+    "workflow_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "by_email": {
+            "type": "string"
+          },
+          "by_name": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "timestamp"
+        ]
+      },
+      "default": [],
+      "description": "Append-only audit trail for the project. Each entry records an action, actor, timestamp, and optional note."
     }
   },
   "required": [
