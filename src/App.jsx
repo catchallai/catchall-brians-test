@@ -11,6 +11,7 @@ import Permissions from './pages/Permissions';
 import ClientPortal from './pages/ClientPortal';
 import GitHubDashboard from './pages/GitHubDashboard';
 import DatabaseMap from './pages/DatabaseMap';
+import ProjectModuleSpec from './pages/ProjectModuleSpec';
 import Equity from './pages/Equity';
 import HRISAnnouncements from './pages/HRISAnnouncements';
 import HRISRecognition from './pages/HRISRecognition';
@@ -192,6 +193,7 @@ const AuthenticatedApp = () => {
       <Route path="/ClientPortal" element={<ClientPortal />} />
       <Route path="/GitHubDashboard" element={<LayoutWrapper currentPageName="GitHubDashboard"><GitHubDashboard /></LayoutWrapper>} />
       <Route path="/DatabaseMap" element={<LayoutWrapper currentPageName="DatabaseMap"><DatabaseMap /></LayoutWrapper>} />
+      <Route path="/ProjectModuleSpec" element={<LayoutWrapper currentPageName="ProjectModuleSpec"><ProjectModuleSpec /></LayoutWrapper>} />
       <Route path="/portal/:accessCode" element={<PublicDataRoomPortal />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
