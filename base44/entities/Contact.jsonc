@@ -1,0 +1,296 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Associated business ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Primary company/firm name"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Primary company ID (for backwards compatibility)"
+    },
+    "company_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of all associated companies"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "Tier 1",
+        "Tier 2",
+        "Tier 3"
+      ],
+      "description": "Company tier classification"
+    },
+    "category": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "US Fractional Charter",
+          "US Part 135 Operations",
+          "US Regional Membership",
+          "Leading France",
+          "US Regional Airlines",
+          "US Seaplane Ops",
+          "US Membership",
+          "US Charter Marketplace",
+          "US Fractional Jet Card",
+          "US Public Charter",
+          "Intl BizAv Operators",
+          "Intl Regional Charter",
+          "Intl Seaplane Charter",
+          "Corporate Flight Depts",
+          "LOI & MOU History"
+        ]
+      },
+      "description": "Business categories (multiple selections allowed)"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country/Region"
+    },
+    "hq_city": {
+      "type": "string",
+      "description": "Headquarters city"
+    },
+    "website": {
+      "type": "string",
+      "description": "Company website URL"
+    },
+    "contact_page_url": {
+      "type": "string",
+      "description": "Company contact page URL"
+    },
+    "general_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General company emails"
+    },
+    "general_phones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General company phone numbers"
+    },
+    "contact_sources_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contact source URLs"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "Contact's first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Contact's last name"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Contact's email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact's phone number"
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Contact's job title"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "prospect",
+        "customer",
+        "churned"
+      ],
+      "default": "lead",
+      "description": "Contact status"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "website",
+        "referral",
+        "linkedin",
+        "cold_outreach",
+        "event",
+        "import",
+        "other"
+      ],
+      "description": "Lead source"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Email of assigned owner/rep (prevents duplicate outreach)"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Name of assigned owner/rep"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "role_1_title": {
+      "type": "string",
+      "description": "Role 1 (Primary) - Title"
+    },
+    "role_1_name": {
+      "type": "string",
+      "description": "Role 1 - Name"
+    },
+    "role_1_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Role 1 - Email"
+    },
+    "role_1_phone": {
+      "type": "string",
+      "description": "Role 1 - Phone"
+    },
+    "role_1_source_url": {
+      "type": "string",
+      "description": "Role 1 - Source URL"
+    },
+    "role_2_title": {
+      "type": "string",
+      "description": "Role 2 - Title"
+    },
+    "role_2_name": {
+      "type": "string",
+      "description": "Role 2 - Name"
+    },
+    "role_2_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Role 2 - Email"
+    },
+    "role_2_phone": {
+      "type": "string",
+      "description": "Role 2 - Phone"
+    },
+    "role_2_source_url": {
+      "type": "string",
+      "description": "Role 2 - Source URL"
+    },
+    "signer_title": {
+      "type": "string",
+      "description": "Signer / Exec Sponsor - Title"
+    },
+    "signer_name": {
+      "type": "string",
+      "description": "Signer - Name"
+    },
+    "signer_email": {
+      "type": "string",
+      "format": "email",
+      "description": "Signer - Email"
+    },
+    "signer_phone": {
+      "type": "string",
+      "description": "Signer - Phone"
+    },
+    "signer_source_url": {
+      "type": "string",
+      "description": "Signer - Source URL"
+    },
+    "loi_summary": {
+      "type": "string",
+      "description": "LOI / MOU / Prior Conditional Orders (Summary)"
+    },
+    "loi_source_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "LOI/MOU Source URLs"
+    },
+    "notes_angle": {
+      "type": "string",
+      "description": "Notes / Angle"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization"
+    },
+    "last_contacted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last contact date"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Profile image URL"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "description": "LinkedIn profile URL"
+    },
+    "enriched": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether data has been enriched"
+    },
+    "enriched_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When data was enriched"
+    },
+    "duplicate_of_id": {
+      "type": "string",
+      "description": "If this is a duplicate, ID of the primary contact"
+    },
+    "deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Soft delete flag"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When contact was deleted"
+    }
+  },
+  "required": [
+    "first_name",
+    "email"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "data.business_id": "{{user.data.current_business_id}}"
+    },
+    "update": {
+      "data.business_id": "{{user.data.current_business_id}}"
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
