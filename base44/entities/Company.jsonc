@@ -1,0 +1,225 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "website": {
+      "type": "string",
+      "description": "Company website URL"
+    },
+    "contact_page_url": {
+      "type": "string",
+      "description": "Company contact page URL"
+    },
+    "industry": {
+      "type": "string",
+      "enum": [
+        "technology",
+        "healthcare",
+        "finance",
+        "retail",
+        "manufacturing",
+        "education",
+        "real_estate",
+        "consulting",
+        "marketing",
+        "aviation",
+        "other"
+      ],
+      "description": "Industry sector"
+    },
+    "category": {
+      "type": "string",
+      "description": "Business category (e.g., US Fractional / Jet Card / Charter)"
+    },
+    "size": {
+      "type": "string",
+      "enum": [
+        "1-10",
+        "11-50",
+        "51-200",
+        "201-500",
+        "501-1000",
+        "1000+"
+      ],
+      "description": "Company size"
+    },
+    "annual_revenue": {
+      "type": "number",
+      "description": "Annual revenue estimate"
+    },
+    "address": {
+      "type": "string",
+      "description": "Company address"
+    },
+    "city": {
+      "type": "string",
+      "description": "City"
+    },
+    "hq_city": {
+      "type": "string",
+      "description": "Headquarters city"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Company phone"
+    },
+    "general_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General company emails"
+    },
+    "general_phones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General company phone numbers"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Company logo URL"
+    },
+    "description": {
+      "type": "string",
+      "description": "Company description"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "Tier 1",
+        "Tier 2",
+        "Tier 3"
+      ],
+      "description": "Company tier classification"
+    },
+    "loi_summary": {
+      "type": "string",
+      "description": "LOI/MOU summary"
+    },
+    "loi_source_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "LOI/MOU source URLs"
+    },
+    "notes_angle": {
+      "type": "string",
+      "description": "Notes and outreach angle"
+    },
+    "contact_sources_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contact source URLs"
+    },
+    "industry_trends": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Current industry trends affecting this company"
+    },
+    "recent_news": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Recent news articles about the company"
+    },
+    "funding_rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "round_type": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string"
+          },
+          "investors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "description": "Funding rounds and investment history"
+    },
+    "key_competitors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Main competitors in the market"
+    },
+    "related_company_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of related companies (partners, subsidiaries, etc.)"
+    },
+    "ai_enriched": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether AI enrichment has been performed"
+    },
+    "ai_enriched_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When AI enrichment was last performed"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "data.business_id": "{{user.data.current_business_id}}"
+    },
+    "update": {
+      "data.business_id": "{{user.data.current_business_id}}"
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
