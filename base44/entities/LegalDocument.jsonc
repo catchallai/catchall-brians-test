@@ -1,0 +1,167 @@
+{
+  "name": "LegalDocument",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "description": "Associated business ID"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "nda",
+        "media_release",
+        "contractor_agreement",
+        "location_release",
+        "talent_release",
+        "custom"
+      ],
+      "default": "nda",
+      "description": "Type of legal document"
+    },
+    "title": {
+      "type": "string",
+      "description": "Document title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Document description"
+    },
+    "content": {
+      "type": "string",
+      "description": "Document content/template"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Recipient name"
+    },
+    "recipient_email": {
+      "type": "string",
+      "description": "Recipient email"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Associated contact ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name (if applicable)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "viewed",
+        "signed",
+        "expired",
+        "declined"
+      ],
+      "default": "draft",
+      "description": "Document status"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date sent"
+    },
+    "viewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date viewed"
+    },
+    "signed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date signed"
+    },
+    "expires_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiration date"
+    },
+    "tracking_code": {
+      "type": "string",
+      "description": "Unique tracking code"
+    },
+    "resend_email_id": {
+      "type": "string",
+      "description": "Resend email ID for tracking"
+    },
+    "email_opened": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether email was opened"
+    },
+    "email_opened_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "First email open date"
+    },
+    "email_clicked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether email link was clicked"
+    },
+    "email_clicked_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "First email click date"
+    },
+    "signature_url": {
+      "type": "string",
+      "description": "Signed document URL"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address of signer"
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of views"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes"
+    },
+    "custom_fields": {
+      "type": "object",
+      "description": "Custom fields for dynamic content"
+    }
+  },
+  "required": [
+    "document_type",
+    "title",
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.recipient_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
